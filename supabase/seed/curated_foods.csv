@@ -1,0 +1,149 @@
+id,name,category,default_location,pantry_min,pantry_max,fridge_min,fridge_max,freezer_min,freezer_max,keywords,tips
+1,"Eggs, in shell",Dairy & Eggs,fridge,5,7,21,35,,,egg|eggs|anda|ande|desi anda|brown eggs,"Keep in the carton on a fridge shelf, not the door. Do not freeze in the shell."
+2,"Eggs, hard-boiled",Dairy & Eggs,fridge,,,5,7,,,boiled egg|boiled eggs|ubla anda,Refrigerate within 2 hours of cooking.
+3,"Milk, toned (pouch)",Dairy & Eggs,fridge,,,2,3,30,90,milk|toned milk|double toned milk|doodh|cow milk|buffalo milk|milk pouch,Boil or use within a day of opening. Thaw frozen milk in the fridge.
+4,"Milk, full cream",Dairy & Eggs,fridge,,,2,3,30,90,full cream milk|whole milk|doodh|malai doodh,Keep boiled milk covered in the fridge.
+5,"Milk, UHT carton (unopened)",Dairy & Eggs,pantry,60,90,3,5,,,uht milk|tetra pack milk|long life milk|carton milk,Pantry while sealed. Once opened refrigerate and use within 3-5 days.
+6,Curd / dahi (homemade),Dairy & Eggs,fridge,1,1,2,4,,,curd|dahi|yogurt|yoghurt|homemade curd,Sours quickly at room temperature; keep covered in the fridge.
+7,"Yogurt, packaged (cup)",Dairy & Eggs,fridge,,,7,14,30,60,yogurt|yoghurt|packaged curd|greek yogurt|flavoured yogurt|mishti doi,Use within 3 days of opening.
+8,Buttermilk / chaas,Dairy & Eggs,fridge,,,1,2,,,buttermilk|chaas|chhach|mattha|majjige|lassi,
+9,"Paneer, fresh (loose)",Dairy & Eggs,fridge,,,2,3,60,90,paneer|cottage cheese|chhena|chena|malai paneer,Store submerged in water in a closed box; change the water daily.
+10,"Paneer, packaged (opened)",Dairy & Eggs,fridge,,,3,5,60,90,paneer packet|packaged paneer|amul paneer|tofu paneer,Unopened packs: follow the printed date.
+11,Butter,Dairy & Eggs,fridge,1,2,30,60,180,270,butter|makhan|makkhan|salted butter|amul butter,Keep wrapped; butter absorbs fridge smells.
+12,White butter / homemade makhan,Dairy & Eggs,fridge,,,7,10,60,90,white butter|safed makhan|homemade butter|loni,
+13,Ghee,Dairy & Eggs,pantry,90,180,180,365,,,ghee|desi ghee|clarified butter|cow ghee|tuppa|neyyi,Use a dry spoon; moisture makes ghee go rancid.
+14,"Cheese, processed (slices, cubes, spread)",Dairy & Eggs,fridge,,,7,14,,,cheese|cheese slice|cheese slices|cheese cubes|cheese spread|processed cheese,Unopened: follow the printed date.
+15,"Cheese, hard (cheddar, parmesan)",Dairy & Eggs,fridge,,,21,42,120,180,cheddar|parmesan|hard cheese|cheese block,Cut away 2-3 cm around any mould spot.
+16,"Cheese, mozzarella",Dairy & Eggs,fridge,,,5,7,90,180,mozzarella|pizza cheese|grated cheese|shredded cheese,
+17,Fresh cream / malai,Dairy & Eggs,fridge,,,3,5,60,90,cream|fresh cream|malai|amul cream|whipping cream,Frozen cream separates; use it for cooking.
+18,Khoya / mawa,Dairy & Eggs,fridge,,,3,5,60,90,khoya|khoa|mawa|milk solids,
+19,"Condensed milk, opened",Dairy & Eggs,fridge,,,7,14,,,condensed milk|milkmaid|sweetened condensed milk,Unopened tins keep in the pantry until the printed date.
+20,Milk powder (opened),Dairy & Eggs,pantry,60,90,,,,,milk powder|dairy whitener|everyday|nido,Keep tightly closed and dry.
+21,Ice cream,Frozen,freezer,,,,,30,60,ice cream|kulfi|frozen dessert|icecream,Keep at the back of the freezer; refreezing melted ice cream is unsafe.
+22,Shrikhand,Dairy & Eggs,fridge,,,3,5,,,shrikhand|amrakhand|matho,
+23,"Bread, sliced (white, brown, multigrain)",Bakery,pantry,2,4,5,7,60,90,bread|white bread|brown bread|double roti|sandwich bread|multigrain bread|loaf,Fridge slows mould but dries bread; freeze slices for toast.
+24,Pav / buns,Bakery,pantry,1,2,3,5,30,60,pav|pao|bun|buns|ladi pav|burger bun,
+25,Rusk / toast,Bakery,pantry,30,60,,,,,rusk|toast|cake rusk|suji rusk,Keep in an airtight jar once opened.
+26,"Cake or pastry, with cream",Bakery,fridge,,,2,3,30,60,cake|pastry|cream cake|birthday cake|black forest,
+27,"Roti / chapati, cooked",Cooked & Leftovers,fridge,1,1,2,3,30,60,roti|chapati|phulka|rotli|fulka,Freeze with butter paper between rotis.
+28,"Paratha, frozen (ready to cook)",Frozen,freezer,,,2,3,90,180,frozen paratha|malabar paratha|laccha paratha|aloo paratha,
+29,"Biscuits and cookies, opened",Snacks,pantry,14,30,,,,,biscuit|biscuits|cookies|parle g|marie|cream biscuit,Keep in an airtight jar; soft biscuits have gone stale.
+30,"Namkeen and bhujia, opened",Snacks,pantry,14,30,,,,,namkeen|bhujia|mixture|sev|chivda|farsan,Oil-rich snacks go rancid in heat; keep sealed.
+31,"Chips, opened",Snacks,pantry,7,14,,,,,chips|wafers|crisps|potato chips|banana chips,
+32,Spinach / palak,Vegetables,fridge,1,1,3,5,180,300,spinach|palak|palak leaves|baby spinach|keerai,"Wrap unwashed leaves in a dry cloth, then a bag. Blanch before freezing."
+33,Coriander leaves / dhania,Vegetables,fridge,1,2,5,7,,,coriander|dhania|hara dhania|cilantro|kothmir|kothimbir,Stand stems in water or wrap in a damp paper towel in a box.
+34,Fenugreek leaves / methi,Vegetables,fridge,1,1,3,5,,,methi|fenugreek|methi leaves|fenugreek leaves,Dry thoroughly before storing; kasuri methi keeps for months.
+35,Mint / pudina,Vegetables,fridge,1,1,5,7,,,mint|pudina|phudina|mint leaves,
+36,Curry leaves / kadi patta,Vegetables,fridge,2,3,10,14,60,90,curry leaves|kadi patta|kadhi patta|karivepaku|kariveppilai,Strip from stems and store dry in a box.
+37,Tomatoes,Vegetables,pantry,3,5,5,7,,,tomato|tomatoes|tamatar|thakkali,Ripen on the counter; refrigerate only once fully ripe.
+38,Onions,Vegetables,pantry,30,60,7,10,,,onion|onions|pyaz|pyaaz|kanda|eerulli|vengayam,Whole onions in a dry airy basket away from potatoes. Fridge days are for cut onion.
+39,Spring onions,Vegetables,fridge,1,2,5,7,,,spring onion|spring onions|green onion|hara pyaz|scallion,
+40,Potatoes,Vegetables,pantry,21,35,,,,,potato|potatoes|aloo|alu|batata|urulai,Cool dark place; do not refrigerate raw potatoes. Discard green or sprouted parts.
+41,Sweet potato / shakarkandi,Vegetables,pantry,14,21,,,,,sweet potato|shakarkandi|shakarkand|ratalu,
+42,Ginger / adrak,Vegetables,pantry,7,14,21,30,90,180,ginger|adrak|allam|inji,Fridge in a paper bag; freeze peeled and grate from frozen.
+43,Garlic / lahsun,Vegetables,pantry,30,60,7,14,,,garlic|lahsun|lehsun|lasun|poondu|vellulli,Whole bulbs in a dry airy place. Fridge days are for peeled cloves.
+44,Ginger-garlic paste (homemade),Vegetables,fridge,,,7,14,60,90,ginger garlic paste|adrak lahsun paste|gg paste,Freeze in ice-cube trays. Never store garlic in oil at room temperature.
+45,Green chillies / hari mirch,Vegetables,fridge,2,3,7,14,90,180,green chilli|green chillies|hari mirch|mirchi|chilli|chili,Remove stems and store dry in a box.
+46,Lemons / nimbu,Fruit,pantry,7,10,21,30,,,lemon|lemons|nimbu|limbu|lime|elumichai,
+47,Cucumber / kheera,Vegetables,fridge,1,3,5,7,,,cucumber|kheera|khira|kakdi|vellarikka,
+48,Carrots / gajar,Vegetables,fridge,2,3,14,21,240,365,carrot|carrots|gajar|gajjar,Cut off leafy tops before storing. Blanch before freezing.
+49,Cauliflower / gobhi,Vegetables,fridge,1,2,5,7,240,365,cauliflower|gobhi|gobi|phool gobhi,
+50,Cabbage / patta gobhi,Vegetables,fridge,2,3,7,14,,,cabbage|patta gobhi|band gobhi|kobi|muttaikose,
+51,Capsicum / shimla mirch,Vegetables,fridge,1,2,4,7,180,240,capsicum|shimla mirch|bell pepper|red capsicum|yellow capsicum,
+52,Brinjal / baingan,Vegetables,fridge,1,2,3,5,,,brinjal|baingan|eggplant|aubergine|vangi|kathirikai,
+53,Okra / bhindi,Vegetables,fridge,1,1,2,4,240,365,okra|bhindi|lady finger|ladies finger|vendakkai,Store dry and unwashed; moisture makes it slimy.
+54,Bottle gourd / lauki,Vegetables,fridge,2,3,5,7,,,bottle gourd|lauki|dudhi|ghiya|sorakaya,
+55,Bitter gourd / karela,Vegetables,fridge,1,2,4,5,,,bitter gourd|karela|kakarakaya|pavakkai,
+56,Ridge gourd / turai,Vegetables,fridge,1,2,3,5,,,ridge gourd|turai|tori|turiya|beerakaya,
+57,French beans,Vegetables,fridge,1,1,3,5,240,365,french beans|beans|green beans|farasbi|phali,
+58,"Green peas, fresh (in pod) / matar",Vegetables,fridge,1,1,3,5,240,365,peas|green peas|matar|mutter|hara matar,Shell and blanch before freezing.
+59,"Green peas, frozen",Frozen,freezer,,,1,2,240,365,frozen peas|frozen matar|safal peas,Cook from frozen; do not refreeze thawed peas.
+60,"Sweet corn, frozen",Frozen,freezer,,,1,2,240,365,frozen corn|sweet corn|corn kernels|makka,
+61,"Mixed vegetables, frozen",Frozen,freezer,,,1,2,240,365,frozen vegetables|mixed veg|frozen mixed vegetables,
+62,Mushrooms,Vegetables,fridge,,,3,5,240,365,mushroom|mushrooms|button mushroom|khumb|dhingri,Keep in a paper bag; plastic makes them slimy.
+63,Beetroot / chukandar,Vegetables,fridge,2,3,7,14,,,beetroot|beet|chukandar|chukander,
+64,Radish / mooli,Vegetables,fridge,1,2,7,10,,,radish|mooli|muli|mullangi,
+65,Pumpkin / kaddu,Vegetables,pantry,30,60,3,5,,,pumpkin|kaddu|kashiphal|lal bhopla|parangikai,Whole pumpkin in the pantry. Fridge days are for cut pieces wrapped in film.
+66,Drumsticks / moringa,Vegetables,fridge,1,2,3,5,,,drumstick|drumsticks|moringa|sahjan|shevga|murungakkai,
+67,Lettuce and salad leaves,Vegetables,fridge,,,3,5,,,lettuce|salad leaves|iceberg|salad,
+68,Broccoli,Vegetables,fridge,,,3,5,240,365,broccoli|hari gobhi,
+69,Bananas / kela,Fruit,pantry,2,5,,,60,90,banana|bananas|kela|kele|elaichi kela|robusta,Freeze peeled ripe bananas for shakes.
+70,Apples / seb,Fruit,pantry,5,7,21,30,,,apple|apples|seb|saeb|shimla apple,Keep away from other fruit; apples speed up ripening.
+71,Oranges / santra,Fruit,pantry,7,10,14,21,,,orange|oranges|santra|mosambi|sweet lime|kinnow,
+72,"Mango, ripe / aam",Fruit,pantry,2,3,5,7,180,240,mango|mangoes|aam|alphonso|hapus|kesari|langda|dasheri,Freeze as pulp or cubes.
+73,Papaya / papita,Fruit,pantry,2,3,3,5,,,papaya|papita|pappali,
+74,Grapes / angoor,Fruit,fridge,1,2,5,7,,,grapes|angoor|angur|black grapes|green grapes,Wash just before eating.
+75,Pomegranate / anar,Fruit,pantry,7,14,21,30,,,pomegranate|anar|anaar|dalimb|matulam,Separated seeds keep 3-5 days in the fridge.
+76,Watermelon / tarbooz,Fruit,pantry,7,10,3,4,,,watermelon|tarbooz|tarbuj|kalingad,Fridge days are for cut melon in a covered box.
+77,Guava / amrood,Fruit,pantry,2,4,5,7,,,guava|amrood|amrud|peru|koyya,
+78,Pineapple / ananas,Fruit,pantry,1,2,3,5,,,pineapple|ananas|ananas fruit,Fridge days are for cut pineapple.
+79,Chikoo / sapota,Fruit,pantry,2,3,5,7,,,chikoo|chiku|sapota|sapodilla,
+80,"Coconut, fresh grated",Fruit,fridge,,,3,5,90,180,grated coconut|fresh coconut|nariyal|thengai|kopra,
+81,"Coconut, whole",Fruit,pantry,14,30,,,,,coconut|nariyal|whole coconut|tender coconut,Tender coconut water: drink the same day.
+82,Dates / khajur,Dry Fruits & Nuts,pantry,30,60,90,180,,,dates|khajur|khajoor|seedless dates,
+83,Strawberries,Fruit,fridge,,,2,3,180,240,strawberry|strawberries,Remove mouldy berries straight away.
+84,"Rice, uncooked (white, basmati)",Grains & Flours,pantry,180,365,,,,,rice|chawal|basmati|sona masoori|kolam|ponni|raw rice,Airtight container; add a few dried neem leaves or bay leaves against weevils.
+85,"Rice, cooked",Cooked & Leftovers,fridge,,,1,3,30,60,cooked rice|leftover rice|chawal|steamed rice|bhaat|pulao,Cool and refrigerate within 1 hour; reheat until steaming hot.
+86,Atta / whole wheat flour,Grains & Flours,pantry,30,60,90,180,,,atta|wheat flour|whole wheat flour|gehun ka atta|chakki atta|godhuma pindi,Whole-grain flours turn rancid in heat; refrigerate in summer.
+87,Maida / all-purpose flour,Grains & Flours,pantry,90,180,180,365,,,maida|all purpose flour|refined flour|plain flour,
+88,Besan / gram flour,Grains & Flours,pantry,30,60,90,180,,,besan|gram flour|chickpea flour|kadale hittu|kadalai maavu,
+89,Suji / rava / semolina,Grains & Flours,pantry,60,90,180,365,,,suji|sooji|rava|rawa|semolina|bombay rava,Dry-roast before storing to keep insects away.
+90,Poha / flattened rice,Grains & Flours,pantry,60,90,,,,,poha|pohe|flattened rice|aval|avalakki|chivda,
+91,Oats (opened),Grains & Flours,pantry,60,90,,,,,oats|rolled oats|oatmeal|masala oats,
+92,Vermicelli / seviyan,Grains & Flours,pantry,90,180,,,,,vermicelli|seviyan|semiya|sevai|sevaiyan,
+93,"Pasta and noodles, dry",Grains & Flours,pantry,180,365,,,,,pasta|noodles|maggi|instant noodles|macaroni|spaghetti|hakka noodles,
+94,Ragi and millet flours,Grains & Flours,pantry,30,60,90,180,,,ragi|nachni|finger millet|bajra|jowar|millet flour|makki ka atta,
+95,"Breakfast cereal, opened",Grains & Flours,pantry,30,60,,,,,cornflakes|cereal|muesli|chocos|granola,
+96,Toor dal / arhar,Pulses,pantry,180,365,,,,,toor dal|tur dal|arhar dal|tuvar dal|pigeon pea|dal|daal|togari bele,
+97,Moong dal,Pulses,pantry,180,365,,,,,moong dal|mung dal|green gram|yellow moong|moong|pesarapappu|dal,
+98,Masoor dal,Pulses,pantry,180,365,,,,,masoor dal|red lentils|masur|lentils|dal,
+99,Chana dal,Pulses,pantry,180,365,,,,,chana dal|bengal gram|split chickpeas|kadale bele|dal,
+100,Urad dal,Pulses,pantry,180,365,,,,,urad dal|black gram|udad|ulundu|minapappu|dal,
+101,"Rajma / kidney beans, dry",Pulses,pantry,180,365,,,,,rajma|kidney beans|red beans|chitra rajma,Soak and boil hard for 10 minutes; undercooked rajma is toxic.
+102,"Kabuli chana / chickpeas, dry",Pulses,pantry,180,365,,,,,kabuli chana|chickpeas|chole|chhole|garbanzo|kala chana,
+103,"Dal, cooked",Cooked & Leftovers,fridge,,,2,3,30,60,cooked dal|dal tadka|dal fry|sambar|rasam|leftover dal,
+104,Sprouts (moong / chana),Vegetables,fridge,,,1,2,,,sprouts|moong sprouts|ankurit|sprouted moong|mung bean sprouts,Rinse well; children and pregnant people should eat sprouts cooked.
+105,Sugar / cheeni,Staples,pantry,365,730,,,,,sugar|cheeni|chini|shakkar|sakhar,Keep dry; sugar does not spoil but attracts ants.
+106,Jaggery / gur,Staples,pantry,90,180,180,365,,,jaggery|gur|gud|bella|vellam|panela,Airtight jar; refrigerate in the monsoon.
+107,Salt / namak,Staples,pantry,730,1825,,,,,salt|namak|sendha namak|rock salt|black salt|kala namak,
+108,"Cooking oil, opened (sunflower, mustard, groundnut)",Staples,pantry,90,180,,,,,oil|cooking oil|sunflower oil|mustard oil|sarson ka tel|groundnut oil|refined oil|tel|rice bran oil,Store away from the stove; discard if it smells sharp or paint-like.
+109,Coconut oil,Staples,pantry,180,365,,,,,coconut oil|nariyal tel|parachute|thengai ennai,
+110,Honey / shahad,Staples,pantry,365,730,,,,,honey|shahad|shehad|madhu|then,Crystallised honey is fine; warm the jar in water.
+111,Tea leaves / chai patti,Staples,pantry,180,365,,,,,tea|chai|chai patti|tea leaves|tea powder|green tea,
+112,"Coffee powder, opened",Staples,pantry,60,90,,,,,coffee|coffee powder|instant coffee|filter coffee|nescafe|bru,
+113,"Pickle / achar, opened",Condiments & Sauces,pantry,180,365,180,365,,,pickle|achar|achaar|aam ka achar|lime pickle|uppinakayi|oorugai,Always use a dry spoon; discard if mould appears.
+114,"Tomato ketchup, opened",Condiments & Sauces,fridge,30,30,90,180,,,ketchup|tomato ketchup|tomato sauce|kissan|maggi sauce,
+115,"Jam, opened",Condiments & Sauces,fridge,,,90,180,,,jam|mixed fruit jam|fruit jam|marmalade,
+116,"Peanut butter, opened",Condiments & Sauces,pantry,60,90,180,270,,,peanut butter|pb,
+117,"Mayonnaise, opened",Condiments & Sauces,fridge,,,30,60,,,mayonnaise|mayo|eggless mayo|veg mayonnaise,
+118,"Sauces, opened (soy, chilli, schezwan)",Condiments & Sauces,fridge,30,30,90,180,,,soy sauce|chilli sauce|schezwan sauce|green chilli sauce|hot sauce|vinegar,
+119,Tamarind / imli,Condiments & Sauces,pantry,180,365,365,365,,,tamarind|imli|imali|puli|chinch,Tamarind paste: fridge 30-60 days after opening.
+120,Papad,Snacks,pantry,90,180,,,,,papad|papadum|appalam|happala,
+121,Turmeric powder / haldi,Spices,pantry,180,365,,,,,turmeric|haldi|halad|manjal|arishina,Ground spices lose flavour before they spoil; buy small packs.
+122,Red chilli powder / lal mirch,Spices,pantry,180,365,,,,,red chilli powder|lal mirch|mirchi powder|kashmiri mirch|chilli powder,
+123,Coriander powder / dhania powder,Spices,pantry,180,365,,,,,coriander powder|dhania powder|dhaniya powder,
+124,Cumin seeds / jeera,Spices,pantry,365,730,,,,,cumin|jeera|zeera|jira|jeerige|cumin powder,
+125,Garam masala and spice blends,Spices,pantry,180,365,,,,,garam masala|masala|chole masala|sambar powder|pav bhaji masala|chaat masala|kitchen king,
+126,Mustard seeds / rai,Spices,pantry,365,730,,,,,mustard seeds|rai|sarson|kadugu|sasive,
+127,"Whole spices (cardamom, cloves, cinnamon, bay leaf, pepper)",Spices,pantry,365,730,,,,,whole spices|elaichi|cardamom|laung|clove|dalchini|cinnamon|tej patta|bay leaf|kali mirch|black pepper,
+128,Asafoetida / hing,Spices,pantry,365,730,,,,,asafoetida|hing|heeng|perungayam|ingu,Keep the tin tightly shut; its smell spreads.
+129,Almonds / badam,Dry Fruits & Nuts,pantry,60,90,180,365,365,365,almonds|badam|badaam,
+130,Cashews / kaju,Dry Fruits & Nuts,pantry,60,90,180,180,365,365,cashew|cashews|kaju|godambi|mundiri,
+131,"Peanuts / moongphali, raw",Dry Fruits & Nuts,pantry,30,60,90,180,,,peanuts|moongphali|mungfali|groundnuts|shengdana|kadalai,Discard peanuts that taste bitter or look mouldy.
+132,Raisins / kishmish,Dry Fruits & Nuts,pantry,90,180,180,365,,,raisins|kishmish|kismis|munakka|dry grapes,
+133,Walnuts / akhrot,Dry Fruits & Nuts,pantry,30,60,90,180,365,365,walnuts|akhrot|akrot,
+134,"Chicken, raw",Meat & Fish,fridge,,,1,2,180,270,chicken|murgi|murga|chicken breast|chicken curry cut|boneless chicken|drumsticks chicken,Keep on the bottom shelf in a sealed box; thaw in the fridge.
+135,"Mutton / goat meat, raw",Meat & Fish,fridge,,,2,3,120,180,mutton|goat meat|lamb|bakra|gosht|meat,
+136,"Keema / minced meat, raw",Meat & Fish,fridge,,,1,2,90,120,keema|kheema|minced meat|mince|chicken keema|mutton keema,
+137,"Fish, fresh",Meat & Fish,fridge,,,1,2,90,180,fish|machli|machhi|meen|rohu|pomfret|surmai|bangda|hilsa,Gut and clean before storing; keep on ice in a box.
+138,Prawns / jhinga,Meat & Fish,fridge,,,1,2,90,180,prawns|shrimp|jhinga|jhinga machli|kolambi|eral,
+139,"Sausages, salami and ham, opened",Meat & Fish,fridge,,,3,7,30,60,sausage|sausages|salami|ham|cold cuts|chicken sausage,
+140,"Chicken or meat curry, cooked",Cooked & Leftovers,fridge,,,2,3,60,90,chicken curry|mutton curry|butter chicken|biryani|leftover chicken|cooked meat,Reheat until steaming hot all the way through.
+141,"Cooked sabzi and curries (veg)",Cooked & Leftovers,fridge,,,2,3,30,60,sabzi|subzi|curry|leftovers|cooked vegetables|palya|poriyal|chole|rajma curry,Refrigerate within 2 hours of cooking.
+142,"Frozen snacks (samosa, nuggets, fries)",Frozen,freezer,,,1,2,90,180,frozen snacks|samosa|nuggets|french fries|fries|frozen tikki|spring rolls,
+143,"Tofu, opened",Dairy & Eggs,fridge,,,3,5,90,150,tofu|soy paneer|bean curd,Store submerged in water; change daily.
+144,Idli / dosa batter,Cooked & Leftovers,fridge,1,1,3,5,,,batter|idli batter|dosa batter|idli|dosa|appam batter|dosa maavu,Very sour or pink-tinged batter should be discarded.
+145,"Chutney, fresh (green, coconut)",Condiments & Sauces,fridge,,,2,3,30,60,chutney|green chutney|coconut chutney|hari chutney|pudina chutney,
+146,"Fruit juice, opened carton",Beverages,fridge,,,5,7,,,juice|fruit juice|real juice|tropicana|frooti|orange juice,
+147,Soya chunks,Pulses,pantry,180,365,,,,,soya chunks|soya badi|nutrela|meal maker|soya granules,
+148,Sabudana / sago,Grains & Flours,pantry,180,365,,,,,sabudana|sago|tapioca pearls|javvarisi,
