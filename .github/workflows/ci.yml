@@ -1,0 +1,22 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Skip until the app is scaffolded
+        id: app
+        run: test -f package.json && echo "ready=true" >> "$GITHUB_OUTPUT" || echo "No package.json yet"
+      - if: steps.app.outputs.ready == 'true'
+        run: npm ci
+      - if: steps.app.outputs.ready == 'true'
+        run: npm run typecheck && npm run lint && npm test -- --ci
+      - if: steps.app.outputs.ready == 'true'
+        name: Secret scan (no keys in the app)
+        run: "! grep -rEn 'sk-ant-|AIza[0-9A-Za-z_-]{30}' app components lib 2>/dev/null"
