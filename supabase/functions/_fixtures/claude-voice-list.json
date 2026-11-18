@@ -1,0 +1,64 @@
+{
+  "id": "msg_01VoiceListDemo",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-haiku-5-5",
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_01VoiceListDemo",
+      "name": "record_items",
+      "input": {
+        "items": [
+          {
+            "name": "Milk",
+            "quantity": 2,
+            "unit": "pack",
+            "location": "fridge",
+            "printed_date": null,
+            "confidence": 0.9,
+            "category_hint": "milk",
+            "barcode": null,
+            "estimated_days_left": 3
+          },
+          {
+            "name": "Eggs",
+            "quantity": 1,
+            "unit": "dozen",
+            "location": "fridge",
+            "printed_date": null,
+            "confidence": 0.93,
+            "category_hint": "eggs, in shell",
+            "barcode": null,
+            "estimated_days_left": 21
+          },
+          {
+            "name": "Onions",
+            "quantity": 0.5,
+            "unit": "kg",
+            "location": "pantry",
+            "printed_date": null,
+            "confidence": 0.86,
+            "category_hint": "onions",
+            "barcode": null,
+            "estimated_days_left": 30
+          },
+          {
+            "name": "Chicken",
+            "quantity": 500,
+            "unit": "g",
+            "location": "freezer",
+            "printed_date": null,
+            "confidence": 0.8,
+            "category_hint": "chicken, raw",
+            "barcode": null,
+            "estimated_days_left": 120
+          }
+        ]
+      }
+    }
+  ],
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "usage": { "input_tokens": 1402, "output_tokens": 311 }
+}

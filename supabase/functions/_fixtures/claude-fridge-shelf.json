@@ -1,0 +1,107 @@
+{
+  "id": "msg_01FridgeShelfDemo7Items",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-5-5",
+  "content": [
+    {
+      "type": "thinking",
+      "thinking": "",
+      "signature": "EqQBCkgIBhABGAIiQDemoSignatureNotRealFixtureOnly"
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01FridgeShelfDemo",
+      "name": "record_items",
+      "input": {
+        "items": [
+          {
+            "name": "Amul butter",
+            "quantity": 1,
+            "unit": "pack",
+            "location": "fridge",
+            "printed_date": "2027-03-10",
+            "confidence": 0.95,
+            "category_hint": "butter",
+            "barcode": null,
+            "estimated_days_left": 60
+          },
+          {
+            "name": "Toned milk",
+            "quantity": 2,
+            "unit": "pack",
+            "location": "fridge",
+            "printed_date": "2026-11-20",
+            "confidence": 0.92,
+            "category_hint": "milk",
+            "barcode": null,
+            "estimated_days_left": 2
+          },
+          {
+            "name": "Eggs",
+            "quantity": 6,
+            "unit": "count",
+            "location": "fridge",
+            "printed_date": null,
+            "confidence": 0.9,
+            "category_hint": "eggs, in shell",
+            "barcode": null,
+            "estimated_days_left": 21
+          },
+          {
+            "name": "Paneer",
+            "quantity": 200,
+            "unit": "g",
+            "location": "fridge",
+            "printed_date": null,
+            "confidence": 0.84,
+            "category_hint": "paneer",
+            "barcode": null,
+            "estimated_days_left": 4
+          },
+          {
+            "name": "Spinach",
+            "quantity": 1,
+            "unit": "bunch",
+            "location": "fridge",
+            "printed_date": null,
+            "confidence": 0.78,
+            "category_hint": "leafy greens",
+            "barcode": null,
+            "estimated_days_left": 3
+          },
+          {
+            "name": "Curd",
+            "quantity": 400,
+            "unit": "g",
+            "location": "fridge",
+            "printed_date": "2026-11-22",
+            "confidence": 0.88,
+            "category_hint": "yogurt",
+            "barcode": null,
+            "estimated_days_left": 4
+          },
+          {
+            "name": "Cooked rice",
+            "quantity": 1,
+            "unit": "count",
+            "location": "fridge",
+            "printed_date": null,
+            "confidence": 0.55,
+            "category_hint": "cooked rice",
+            "barcode": null,
+            "estimated_days_left": 2
+          }
+        ]
+      }
+    }
+  ],
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 2214,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "output_tokens": 687
+  }
+}
