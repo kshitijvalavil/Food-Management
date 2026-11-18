@@ -12,11 +12,13 @@ export function dailyLimit(deps: Deps): number {
 }
 
 /**
- * Counts one AI call for the user today (UTC day) in `ai_usage`, or throws rate_limited
- * once the cap is reached. Call it before calling Claude, so failed calls still count.
+ * Counts one AI call for the user today (UTC day) and throws rate_limited once the
+ * count passes the cap. Call it before calling Claude, so failed calls still count.
  *
- * Read-then-upsert: two requests racing in the same instant can both pass at the limit.
- * Good enough for a soft cap; an atomic `increment_ai_usage` RPC can replace it later.
+ * Uses `public.bump_ai_usage(p_user_id, p_day)` (service role only), which increments
+ * `ai_usage.calls` atomically and returns the new count, so concurrent requests cannot
+ * slip past the cap. Calls that are refused still increment the counter; that is harmless
+ * because the counter only grows within the day and is reset by the next day's row.
  */
 export async function consumeAiCall(
   admin: SupabaseClient,
@@ -24,21 +26,12 @@ export async function consumeAiCall(
   deps: Deps,
 ): Promise<{ used: number; limit: number }> {
   const limit = dailyLimit(deps);
-  const day = todayUtc(deps);
-  const { data, error } = await admin
-    .from("ai_usage")
-    .select("calls")
-    .eq("user_id", userId)
-    .eq("day", day)
-    .maybeSingle();
-  if (error) throw new Error(`ai_usage read failed: ${error.message}`);
-  const used = typeof data?.calls === "number" ? data.calls : 0;
-  if (used >= limit) {
+  const { data, error } = await admin.rpc("bump_ai_usage", { p_user_id: userId, p_day: todayUtc(deps) });
+  if (error) throw new Error(`bump_ai_usage failed: ${error.message}`);
+  const used = typeof data === "number" ? data : Number(data);
+  if (!Number.isFinite(used)) throw new Error("bump_ai_usage returned no count");
+  if (used > limit) {
     throw new HttpError("rate_limited", `Daily limit of ${limit} AI scans reached. It resets at midnight UTC.`);
   }
-  const { error: writeError } = await admin
-    .from("ai_usage")
-    .upsert({ user_id: userId, day, calls: used + 1 }, { onConflict: "user_id,day" });
-  if (writeError) throw new Error(`ai_usage write failed: ${writeError.message}`);
-  return { used: used + 1, limit };
+  return { used, limit };
 }

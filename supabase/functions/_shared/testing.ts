@@ -114,14 +114,16 @@ export class FakeBackend {
       const uid = eqParam(url, "user_id");
       return jsonResponse(this.members.filter((m) => m.household_id === hh && m.user_id === uid).map((m) => ({ household_id: m.household_id })));
     }
-    if (path === "/rest/v1/ai_usage") {
-      if (method === "GET") {
-        const n = this.aiUsage.get(`${eqParam(url, "user_id")}|${eqParam(url, "day")}`);
-        return jsonResponse(n === undefined ? [] : [{ calls: n }]);
+    if (path === "/rest/v1/rpc/bump_ai_usage" && method === "POST") {
+      // Mirrors the migration: execute is granted to service_role only.
+      if (headers.get("apikey") !== this.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return jsonResponse({ code: "42501", message: "permission denied for function bump_ai_usage" }, 401);
       }
-      const rows = [JSON.parse(body ?? "{}")].flat() as Array<{ user_id: string; day: string; calls: number }>;
-      for (const r of rows) this.aiUsage.set(`${r.user_id}|${r.day}`, r.calls);
-      return new Response(null, { status: 201 });
+      const { p_user_id, p_day } = JSON.parse(body ?? "{}") as { p_user_id: string; p_day?: string };
+      const key = `${p_user_id}|${p_day ?? this.now.toISOString().slice(0, 10)}`;
+      const next = (this.aiUsage.get(key) ?? 0) + 1;
+      this.aiUsage.set(key, next);
+      return jsonResponse(next);
     }
     if (path === "/rest/v1/products") {
       if (method === "GET") {

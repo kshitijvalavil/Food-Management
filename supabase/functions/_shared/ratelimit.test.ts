@@ -26,12 +26,22 @@ Deno.test("consumeAiCall: counts per user per UTC day and stops at the cap", asy
   const err = await assertRejects(() => consumeAiCall(admin, USER, deps), HttpError);
   assertEquals(err.code, "rate_limited");
   assertEquals(err.status, 429);
-  assertEquals(fb.aiUsage.get(`${USER}|2026-11-18`), 2);
+  assertEquals(fb.aiUsage.get(`${USER}|2026-11-18`), 3); // the refused call is counted too
 
-  // Uses the service role and upserts on (user_id, day).
-  const write = fb.calls.find((c) => c.method === "POST" && c.url.pathname === "/rest/v1/ai_usage");
-  assertEquals(write?.headers.get("apikey"), "service-role-key");
-  assertEquals(write?.url.searchParams.get("on_conflict"), "user_id,day");
+  // One atomic RPC per call, with the service role and an explicit UTC day.
+  const bumps = fb.calls.filter((c) => c.url.pathname === "/rest/v1/rpc/bump_ai_usage");
+  assertEquals(bumps.length, 3);
+  assertEquals(bumps[0].headers.get("apikey"), "service-role-key");
+  assertEquals(JSON.parse(bumps[0].body ?? "{}"), { p_user_id: USER, p_day: "2026-11-18" });
+  assertEquals(fb.calls.filter((c) => c.url.pathname === "/rest/v1/ai_usage").length, 0);
+
+  // The RPC is service-role only: an anon/user client is refused and the call fails closed.
+  const { createClient } = await import("@supabase/supabase-js");
+  const anon = createClient(fb.env.SUPABASE_URL, fb.env.SUPABASE_ANON_KEY, {
+    global: { fetch: deps.fetch },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  await assertRejects(() => consumeAiCall(anon, USER, deps), Error, "bump_ai_usage failed");
 
   // Next UTC day starts again.
   fb.now = new Date("2026-11-19T00:00:01Z");
