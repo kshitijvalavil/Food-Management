@@ -23,9 +23,11 @@ Deno.test("parse-text: voice transcript -> enriched items via Haiku", async () =
   const chicken = items[3];
   assertEquals(chicken.location, "freezer");
   assertEquals(chicken.shelf_life_id, 108);
-  assertEquals(chicken.expiry_source, "foodkeeper");
+  // curated (non-USDA) row: its range sets the date, but it is labelled an estimate
+  assertEquals(chicken.expiry_source, "ai_estimate");
   assertEquals(chicken.expires_on, addDays("2026-11-18", 270));
   assertEquals(items[2].expiry_range_days, [30, 60]); // onions, pantry
+  assertEquals(items[0].expiry_source, "foodkeeper"); // milk row is FoodKeeper
 
   const [call] = fb.anthropicCalls();
   assertEquals(call.json.model, "claude-haiku-5-5");

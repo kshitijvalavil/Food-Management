@@ -10,17 +10,17 @@
     "tips": "Do not freeze in shell.", "source": "foodkeeper" },
   { "id": 104, "name": "Leafy greens", "category": "Produce", "keywords": ["leafy greens", "spinach"], "default_location": "fridge",
     "pantry_min_days": null, "pantry_max_days": null, "fridge_min_days": 3, "fridge_max_days": 7, "freezer_min_days": 240, "freezer_max_days": 360,
-    "tips": null, "source": "foodkeeper" },
+    "tips": null, "source": "curated" },
   { "id": 105, "name": "Yogurt", "category": "Dairy", "keywords": ["yogurt", "curd", "dahi"], "default_location": "fridge",
     "pantry_min_days": null, "pantry_max_days": null, "fridge_min_days": 7, "fridge_max_days": 14, "freezer_min_days": 30, "freezer_max_days": 60,
-    "tips": null, "source": "foodkeeper" },
+    "tips": null, "source": "curated" },
   { "id": 106, "name": "Rice, cooked", "category": "Leftovers", "keywords": ["cooked rice"], "default_location": "fridge",
     "pantry_min_days": null, "pantry_max_days": null, "fridge_min_days": 3, "fridge_max_days": 5, "freezer_min_days": 30, "freezer_max_days": 180,
     "tips": null, "source": "foodkeeper" },
   { "id": 107, "name": "Onions", "category": "Produce", "keywords": ["onions", "onion"], "default_location": "pantry",
     "pantry_min_days": 30, "pantry_max_days": 60, "fridge_min_days": 60, "fridge_max_days": 60, "freezer_min_days": 240, "freezer_max_days": 240,
-    "tips": null, "source": "foodkeeper" },
+    "tips": null, "source": "curated" },
   { "id": 108, "name": "Chicken, raw", "category": "Meat", "keywords": ["chicken", "chicken, raw"], "default_location": "fridge",
     "pantry_min_days": null, "pantry_max_days": null, "fridge_min_days": 1, "fridge_max_days": 2, "freezer_min_days": 270, "freezer_max_days": 270,
-    "tips": null, "source": "foodkeeper" }
+    "tips": null, "source": "curated" }
 ]

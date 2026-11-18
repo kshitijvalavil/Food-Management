@@ -20,7 +20,9 @@ const milk: ShelfLifeDays = {
   fridge_max_days: 8,
   freezer_min_days: 90,
   freezer_max_days: 90,
+  source: "foodkeeper",
 };
+const curatedMilk: ShelfLifeDays = { ...milk, source: "curated" };
 
 describe("parseIsoDate", () => {
   it("accepts real calendar dates", () => {
@@ -117,9 +119,34 @@ describe("computeExpiry", () => {
   });
 
   it("handles a 0-day range (eat today)", () => {
-    const r = computeExpiry({ location: "pantry" }, { pantry_min_days: 0, pantry_max_days: 0 }, ADDED);
+    const r = computeExpiry(
+      { location: "pantry" },
+      { pantry_min_days: 0, pantry_max_days: 0, source: "foodkeeper" },
+      ADDED,
+    );
     expect(r.expires_on).toBe(ADDED);
     expect(r.expiry_source).toBe("foodkeeper");
+  });
+
+  it("labels a date from a curated (non-USDA) row as ai_estimate, same date and range", () => {
+    const r = computeExpiry({ location: "fridge", printed_date: null }, curatedMilk, ADDED);
+    expect(r).toEqual({ expires_on: "2026-11-24", expiry_source: "ai_estimate", expiry_range_days: [5, 8] });
+  });
+
+  it("labels a row with no source as ai_estimate (only an explicit 'foodkeeper' counts)", () => {
+    const { source: _omit, ...noSource } = milk;
+    expect(computeExpiry({ location: "fridge" }, noSource, ADDED).expiry_source).toBe("ai_estimate");
+    expect(computeExpiry({ location: "fridge" }, { ...milk, source: null }, ADDED).expiry_source).toBe("ai_estimate");
+  });
+
+  it("a curated row still beats the model's estimate (the row's range is used)", () => {
+    const r = computeExpiry({ location: "fridge" }, curatedMilk, ADDED, 30);
+    expect(r.expires_on).toBe("2026-11-24");
+  });
+
+  it("a printed date stays printed even with a curated row", () => {
+    expect(computeExpiry({ location: "fridge", printed_date: "2026-11-21" }, curatedMilk, ADDED).expiry_source)
+      .toBe("printed");
   });
 
   it("3. falls through to the AI estimate when the row has nothing for the location", () => {

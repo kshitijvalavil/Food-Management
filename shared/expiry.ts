@@ -4,7 +4,9 @@
 // Order of precedence:
 //   1. printed_date read off the pack, if plausible
 //      (not more than 3 years after addedOn, not more than 30 days before it)
-//   2. FoodKeeper shelf_life range for the item's location (midpoint, rounded down)
+//   2. shelf_life range for the item's location (midpoint, rounded down). Labelled
+//      foodkeeper only when the row's source is 'foodkeeper'; curated rows are labelled
+//      ai_estimate ("Estimate"), so non-USDA data is never shown as USDA.
 //   3. an AI estimate in days, if one was passed in
 //   4. a conservative fallback by location, labelled ai_estimate
 //
@@ -29,12 +31,14 @@ export interface ShelfLifeDays {
   fridge_max_days?: number | null;
   freezer_min_days?: number | null;
   freezer_max_days?: number | null;
+  /** `shelf_life.source`. Only 'foodkeeper' yields expiry_source 'foodkeeper'. */
+  source?: string | null;
 }
 
 export interface ExpiryResult {
   expires_on: string;
   expiry_source: ExpirySourceValue;
-  /** FoodKeeper [min, max] days for the item's location, when the row has them. */
+  /** shelf_life [min, max] days for the item's location, when the row has them. */
   expiry_range_days: [number, number] | null;
 }
 
@@ -115,7 +119,10 @@ function cleanDays(v: number | null | undefined): number | null {
   return typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.floor(v) : null;
 }
 
-/** FoodKeeper [min, max] for a location, or null if the row has no days there. */
+/**
+ * shelf_life [min, max] for a location, or null if the row has no days there
+ * (a null pair means "not recommended in this location").
+ */
 export function shelfLifeRange(
   row: ShelfLifeDays | null | undefined,
   location: ExpiryLocation,
@@ -149,7 +156,11 @@ export function computeExpiry(
 
   if (range) {
     const mid = Math.floor((range[0] + range[1]) / 2);
-    return { expires_on: addDays(addedOn, mid), expiry_source: "foodkeeper", expiry_range_days: range };
+    return {
+      expires_on: addDays(addedOn, mid),
+      expiry_source: shelfLife?.source === "foodkeeper" ? "foodkeeper" : "ai_estimate",
+      expiry_range_days: range,
+    };
   }
 
   if (

@@ -49,6 +49,11 @@ Deno.test("analyze-photo: fridge shelf -> 7 enriched items, 1 flagged", async ()
   assertEquals(by["Paneer"].shelf_life_id, null);
   assertEquals(by["Paneer"].expiry_source, "ai_estimate");
   assertEquals(by["Paneer"].expires_on, "2026-11-22");
+  // curated (non-USDA) row: midpoint of 3..7 days, labelled ai_estimate, never foodkeeper
+  assertEquals(by["Spinach"].shelf_life_id, 104);
+  assertEquals(by["Spinach"].expiry_source, "ai_estimate");
+  assertEquals(by["Spinach"].expires_on, "2026-11-23");
+  assertEquals(by["Spinach"].expiry_range_days, [3, 7]);
   assertEquals(by["Cooked rice"].confidence < 0.7, true);
   for (const i of body.items) assert(["printed", "foodkeeper", "ai_estimate"].includes(i.expiry_source));
 
