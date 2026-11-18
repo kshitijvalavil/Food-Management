@@ -87,6 +87,21 @@ Deno.test("lookup-barcode: stale cache is refreshed, and served if OFF is down",
   assertEquals(LookupBarcodeResponse.parse(await res.json()).product_name, "Amul Butter");
 });
 
+Deno.test("lookup-barcode: a cached row with null name/raw still gives a valid item", async () => {
+  const { fb, handler } = await setup();
+  fb.products.set("4006381333931", {
+    barcode: "4006381333931", name: null, brand: "Acme", pack_size: "1 kg", kcal_per_100g: 350,
+    raw: null, fetched_at: "2026-11-17T00:00:00Z",
+  });
+  const res = await handler(post("lookup-barcode", { barcode: "4006381333931" }));
+  assertEquals(res.status, 200);
+  const body = LookupBarcodeResponse.parse(await res.json());
+  assertEquals(body.product_name, "Acme");
+  assertEquals(body.item?.location, "pantry");
+  assertEquals(body.item?.kcal_per_unit, 3500);
+  assertEquals(offCalls(fb).length, 0);
+});
+
 Deno.test("lookup-barcode: unknown product -> found:false, nothing cached", async () => {
   const { fb, handler } = await setup();
   const res = await handler(post("lookup-barcode", { barcode: UNKNOWN }));

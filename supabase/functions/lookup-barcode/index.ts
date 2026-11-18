@@ -29,11 +29,12 @@ export interface OffProduct {
 /** Row shape of the `products` cache table. */
 export interface ProductRow {
   barcode: string;
-  name: string;
+  /** Nullable in the table; always set by this function. */
+  name: string | null;
   brand: string | null;
   pack_size: string | null;
   kcal_per_100g: number | null;
-  raw: OffProduct;
+  raw: OffProduct | null;
   fetched_at: string;
 }
 
@@ -169,10 +170,14 @@ export function createHandler(deps: Deps) {
     }
 
     const tags = row.raw?.categories_tags;
-    const grams = packAmount(row.pack_size);
-    const kcal100 = row.kcal_per_100g ?? kcalPer100g(row.raw?.nutriments);
+    const name = clean(row.name, 80) ?? clean(row.brand, 80) ?? "Unknown product";
+    const brand = clean(row.brand, 80);
+    const packSize = clean(row.pack_size, 40);
+    const grams = packAmount(packSize);
+    const kcal100 = kcalPer100g({ "energy-kcal_100g": row.kcal_per_100g ?? undefined }) ??
+      kcalPer100g(row.raw?.nutriments);
     const [item] = await enrichItems(userClient, [{
-      name: row.name,
+      name,
       quantity: 1,
       unit: "pack",
       location: locationFromCategories(tags),
@@ -184,7 +189,7 @@ export function createHandler(deps: Deps) {
       kcal_per_unit: kcal100 !== null && grams !== null ? Math.round((kcal100 * grams) / 100) : null,
     }], todayUtc(deps));
 
-    return { found: true, item, product_name: row.name, brand: row.brand, pack_size: row.pack_size };
+    return { found: true, item, product_name: name, brand, pack_size: packSize };
   });
 }
 
