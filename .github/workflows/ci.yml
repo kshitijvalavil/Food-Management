@@ -18,5 +18,7 @@ jobs:
       - if: steps.app.outputs.ready == 'true'
         run: npm run typecheck && npm run lint && npm test -- --ci
       - if: steps.app.outputs.ready == 'true'
-        name: Secret scan (no keys in the app)
+        name: Secret scan (no keys in the browser bundle)
         run: "! grep -rEn 'sk-ant-|AIza[0-9A-Za-z_-]{30}' app components lib 2>/dev/null"
+      - if: steps.app.outputs.ready == 'true'
+        run: npx playwright install --with-deps webkit chromium && npx playwright test

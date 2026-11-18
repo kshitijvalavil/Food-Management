@@ -2,12 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(npm *)", "Bash(npx *)", "Bash(node *)", "Bash(git *)", "Bash(gh pr *)", "Bash(gh run *)",
-      "Bash(eas *)", "Bash(npx eas-cli *)", "Bash(supabase *)", "Bash(maestro *)", "Bash(deno *)",
+      "Bash(vercel *)", "Bash(npx vercel *)", "Bash(supabase *)", "Bash(npx playwright *)", "Bash(npx lighthouse *)", "Bash(deno *)",
       "Edit", "Write", "Read", "Glob", "Grep", "WebSearch", "WebFetch"
     ],
     "deny": [
       "Bash(git push --force*)", "Bash(git push -f*)", "Bash(git push origin main*)",
-      "Bash(eas submit --platform * --track production*)", "Read(.env*)"
+      "Bash(vercel --prod*)", "Read(.env*)"
     ]
   }
 }
