@@ -1,0 +1,75 @@
+-- Shared pgTAP helpers, included by every *_test.sql with `\ir _helpers.psql`
+-- inside that file's transaction, so they are rolled back with the test.
+-- (Extension .psql, so pg_prove / `supabase test db` never run it on its own.)
+
+create extension if not exists pgtap with schema extensions;
+
+create schema if not exists tests;
+grant usage on schema tests to anon, authenticated, service_role;
+
+-- Create an auth user (fires handle_new_user) and return its id.
+create or replace function tests.create_user(p_email text, p_meta jsonb default '{}'::jsonb)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_id uuid := gen_random_uuid();
+begin
+  insert into auth.users (id, email, raw_user_meta_data) values (v_id, p_email, p_meta);
+  return v_id;
+end
+$$;
+
+-- The household a user owns (bypasses RLS).
+create or replace function tests.household_of(p_user uuid)
+returns uuid
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select household_id from public.household_members where user_id = p_user and role = 'owner' limit 1
+$$;
+
+-- Become a signed-in user for the rest of the transaction (until `reset role`).
+create or replace function tests.authenticate_as(p_user uuid)
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('request.jwt.claim.sub', p_user::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', p_user, 'role', 'authenticated')::text, true);
+  perform set_config('role', 'authenticated', true);
+end
+$$;
+
+-- Become the anonymous API role.
+create or replace function tests.as_anon()
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claims', '', true);
+  perform set_config('role', 'anon', true);
+end
+$$;
+
+-- Run a DML statement as the CURRENT role (RLS applies) and return the row count.
+create or replace function tests.rowcount(p_sql text)
+returns bigint
+language plpgsql
+security invoker
+as $$
+declare
+  n bigint;
+begin
+  execute p_sql;
+  get diagnostics n = row_count;
+  return n;
+end
+$$;
+
+grant execute on all functions in schema tests to anon, authenticated, service_role;
