@@ -3,6 +3,18 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = Number(process.env.PORT ?? 3210);
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${PORT}`;
 
+// The iPhone project runs on real WebKit in CI (GitHub Actions installs it) and on the
+// preinstalled Chromium locally, with the iPhone 15 viewport, touch and user agent either way.
+// Override with PW_IPHONE_ENGINE=webkit|chromium (PW_IPHONE_WEBKIT=1 still forces WebKit).
+type Engine = "webkit" | "chromium";
+const envEngine = process.env.PW_IPHONE_ENGINE;
+const iphoneEngine: Engine =
+  envEngine === "webkit" || envEngine === "chromium"
+    ? envEngine
+    : process.env.PW_IPHONE_WEBKIT || process.env.CI
+      ? "webkit"
+      : "chromium";
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -13,9 +25,7 @@ export default defineConfig({
   projects: [
     {
       name: "iPhone 15",
-      // Local runs use the preinstalled Chromium with the iPhone 15 viewport, touch and user agent.
-      // CI runs this project on WebKit: set PW_IPHONE_WEBKIT=1 there after `npx playwright install webkit`.
-      use: { ...devices["iPhone 15"], browserName: process.env.PW_IPHONE_WEBKIT ? "webkit" : "chromium" },
+      use: { ...devices["iPhone 15"], browserName: iphoneEngine },
     },
     { name: "Pixel 8", use: { ...devices["Pixel 8"] } },
   ],

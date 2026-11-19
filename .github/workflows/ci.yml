@@ -1,24 +1,155 @@
 name: ci
+
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, "s1/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  ci:
+  app:
+    name: app (typecheck, lint, unit, build, Playwright)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - name: Skip until the app is scaffolded
-        id: app
-        run: test -f package.json && echo "ready=true" >> "$GITHUB_OUTPUT" || echo "No package.json yet"
-      - if: steps.app.outputs.ready == 'true'
-        run: npm ci
-      - if: steps.app.outputs.ready == 'true'
-        run: npm run typecheck && npm run lint && npm test -- --ci
-      - if: steps.app.outputs.ready == 'true'
-        name: Secret scan (no keys in the browser bundle)
-        run: "! grep -rEn 'sk-ant-|AIza[0-9A-Za-z_-]{30}' app components lib 2>/dev/null"
-      - if: steps.app.outputs.ready == 'true'
-        run: npx playwright install --with-deps webkit chromium && npx playwright test
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - name: Build (demo mode)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_DEMO: "1"
+      - name: Upload build for the secrets job
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-static
+          path: .next/static
+          retention-days: 3
+      - name: Install Playwright browsers (real WebKit for the iPhone project)
+        run: npx playwright install --with-deps webkit chromium
+      - name: Playwright (iPhone 15 on WebKit, Pixel 8 on Chromium)
+        run: npx playwright test
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
+  secrets:
+    name: secrets (browser bundle scan)
+    runs-on: ubuntu-latest
+    needs: app
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-static
+          path: .next/static
+      - name: Fail on sk-ant, service_role or SUPABASE_SERVICE_ROLE in .next/static
+        run: |
+          test -n "$(ls -A .next/static)" || { echo "::error::.next/static is empty"; exit 1; }
+          if grep -rEn 'sk-ant|service_role|SUPABASE_SERVICE_ROLE' .next/static; then
+            echo "::error::Server-only secret marker found in the browser bundle"
+            exit 1
+          fi
+          echo "Scanned $(find .next/static -type f | wc -l) files: clean"
+
+  functions:
+    name: functions (Deno check, lint, test; vitest shared/)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: deno task check
+        run: |
+          if [ -d supabase/functions ]; then
+            cd supabase/functions && deno task check
+          else
+            echo "supabase/functions not present yet; skipping"
+          fi
+      - name: deno lint
+        run: |
+          if [ -d supabase/functions ]; then
+            cd supabase/functions && deno lint
+          else
+            echo "supabase/functions not present yet; skipping"
+          fi
+      - name: deno test
+        run: |
+          if [ -d supabase/functions ]; then
+            cd supabase/functions && deno test --allow-read=. --allow-env --no-prompt
+          else
+            echo "supabase/functions not present yet; skipping"
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: vitest shared/
+        run: |
+          if [ -d supabase/functions ] && ls shared/*.test.ts >/dev/null 2>&1; then
+            npm ci
+            npx vitest run shared/
+          else
+            echo "No shared/ tests or supabase/functions yet; skipping"
+          fi
+
+  db:
+    name: db (migrations + pgTAP on Postgres 16)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      TEST_DB: shelflife_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pgTAP inside the Postgres service container
+        run: |
+          docker exec ${{ job.services.postgres.id }} bash -c \
+            "apt-get update -qq && apt-get install -y -qq postgresql-16-pgtap"
+      - name: Install psql client and pg_prove on the runner
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client libtap-parser-sourcehandler-pgtap-perl
+          psql --version
+          pg_prove --version
+      - name: Run migrations, seed and pgTAP suite
+        run: bash supabase/tests/run_local.sh
