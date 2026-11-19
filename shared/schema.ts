@@ -35,14 +35,19 @@ export const EnrichedItem = DetectedItem.extend({
 export type EnrichedItem = z.infer<typeof EnrichedItem>;
 
 // ---- Edge function contracts (POST JSON, Authorization: Bearer <supabase user jwt>) ----
-export const AnalyzePhotoRequest = z.object({ storage_path: z.string(), location_hint: Location.nullable() });
-export const AnalyzePhotoResponse = z.object({ items: z.array(EnrichedItem), flagged: z.number().int() });
+/** Optional on requests: the phone's local date. The server uses it only if it is within ±1 day of its own. */
+export const ClientToday = z.string().date().optional();
+/** Items the AI returned that failed validation and were left out (shown as "n items skipped"). */
+export const DroppedCount = z.number().int().nonnegative().optional();
 
-export const LookupBarcodeRequest = z.object({ barcode: z.string().regex(/^\d{8,14}$/) });
+export const AnalyzePhotoRequest = z.object({ storage_path: z.string(), location_hint: Location.nullable(), today: ClientToday });
+export const AnalyzePhotoResponse = z.object({ items: z.array(EnrichedItem), flagged: z.number().int(), dropped: DroppedCount });
+
+export const LookupBarcodeRequest = z.object({ barcode: z.string().regex(/^\d{8,14}$/), today: ClientToday });
 export const LookupBarcodeResponse = z.object({ found: z.boolean(), item: EnrichedItem.nullable(), product_name: z.string().nullable(), brand: z.string().nullable(), pack_size: z.string().nullable() });
 
-export const ParseTextRequest = z.object({ text: z.string().min(1).max(2000) }); // voice transcript or typed list
-export const ParseTextResponse = z.object({ items: z.array(EnrichedItem) });
+export const ParseTextRequest = z.object({ text: z.string().min(1).max(2000), today: ClientToday }); // voice transcript or typed list
+export const ParseTextResponse = z.object({ items: z.array(EnrichedItem), dropped: DroppedCount });
 
 export const SearchFoodRequest = z.object({ q: z.string().min(1).max(60) });
 export const SearchFoodResponse = z.object({ results: z.array(z.object({ shelf_life_id: z.number().int(), name: z.string(), category: z.string(), default_location: Location })) });

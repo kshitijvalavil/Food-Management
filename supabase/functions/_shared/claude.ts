@@ -30,7 +30,29 @@ export const ClaudeItem = DetectedItem.extend({
 });
 export type ClaudeItem = z.infer<typeof ClaudeItem>;
 
-export const RecordItemsInput = z.object({ items: z.array(ClaudeItem).max(60) });
+export const MAX_ITEMS = 60;
+/** Outer shape only; each item is validated on its own so one bad item cannot sink a scan. */
+export const RecordItemsInput = z.object({ items: z.array(z.unknown()).max(MAX_ITEMS) });
+
+/** Validates items one by one: keeps the valid ones and counts the rest. */
+export function validateItems(normalized: unknown): { items: ClaudeItem[]; dropped: number } | { error: string } {
+  const outer = RecordItemsInput.safeParse(normalized);
+  if (!outer.success) {
+    const first = outer.error.issues[0];
+    return { error: `tool input failed schema at ${first?.path.join(".")}: ${first?.message}` };
+  }
+  const items: ClaudeItem[] = [];
+  let dropped = 0;
+  for (const raw of outer.data.items) {
+    const r = ClaudeItem.safeParse(raw);
+    if (r.success) items.push(r.data);
+    else dropped++;
+  }
+  if (outer.data.items.length > 0 && items.length === 0) {
+    return { error: `all ${dropped} items failed validation` };
+  }
+  return { items, dropped };
+}
 
 const nullableString = (description: string) => ({ type: ["string", "null"], description });
 
@@ -95,6 +117,8 @@ export interface ExtractOptions {
 
 export interface ExtractResult {
   items: ClaudeItem[];
+  /** Items the model returned that failed validation and were left out. */
+  dropped: number;
   model: string;
   attempts: number;
 }
@@ -114,6 +138,10 @@ export function normalizeToolInput(input: unknown): unknown {
     it.name = clip(it.name, 80);
     if (typeof it.unit === "string") it.unit = it.unit.trim().toLowerCase();
     if (typeof it.location === "string") it.location = it.location.trim().toLowerCase();
+    // strict tools cannot express min/max, so 1.01 or -0.1 can arrive: clamp into 0..1.
+    if (typeof it.confidence === "number" && Number.isFinite(it.confidence)) {
+      it.confidence = Math.min(1, Math.max(0, it.confidence));
+    }
     const hint = clip(it.category_hint, 80);
     it.category_hint = typeof hint === "string" && hint.length > 0 ? hint : null;
     if (it.printed_date !== null && parseIsoDate(typeof it.printed_date === "string" ? it.printed_date : null) === null) {
@@ -142,7 +170,12 @@ interface MessagesResponse {
   content?: Array<{ type: string; name?: string; input?: unknown }>;
 }
 
-async function callOnce(deps: Deps, apiKey: string, body: unknown, model: string): Promise<{ items: ClaudeItem[]; model: string }> {
+async function callOnce(
+  deps: Deps,
+  apiKey: string,
+  body: unknown,
+  model: string,
+): Promise<{ items: ClaudeItem[]; dropped: number; model: string }> {
   const headers: Record<string, string> = {
     "x-api-key": apiKey,
     "anthropic-version": ANTHROPIC_VERSION,
@@ -183,17 +216,18 @@ async function callOnce(deps: Deps, apiKey: string, body: unknown, model: string
   }
   const block = json.content?.find((b) => b.type === "tool_use" && b.name === RECORD_ITEMS_TOOL_NAME);
   if (!block) throw new Retryable(`no ${RECORD_ITEMS_TOOL_NAME} call (stop_reason ${json.stop_reason})`);
-  const parsed = RecordItemsInput.safeParse(normalizeToolInput(block.input));
-  if (!parsed.success) {
-    const first = parsed.error.issues[0];
-    throw new Retryable(`tool input failed schema at ${first?.path.join(".")}: ${first?.message}`);
-  }
-  return { items: parsed.data.items, model: json.model ?? model };
+  const checked = validateItems(normalizeToolInput(block.input));
+  if ("error" in checked) throw new Retryable(checked.error);
+  if (checked.dropped > 0) console.warn(`[claude] dropped ${checked.dropped} invalid item(s)`);
+  return { items: checked.items, dropped: checked.dropped, model: json.model ?? model };
 }
 
 /**
- * Asks Claude to list food items with the record_items tool, validates them with zod,
- * retries once on invalid output or a transient error, then fails with upstream_failed.
+ * Asks Claude to list food items with the record_items tool and validates each item with
+ * zod: confidence is clamped into 0..1, and items that still fail (quantity <= 0 or over
+ * 1000, unknown unit or location, empty name, wrong types) are dropped and counted. The
+ * call is retried once when the output is unusable (no tool call, wrong outer shape, more
+ * than 60 items, or every item invalid) or on a transient error, then upstream_failed.
  *
  * tool_choice is "auto", not a forced {type:"tool"}: Sonnet 5.5 rejects forced tool
  * choice with a 400. `strict: true` on the tool plus the system prompt keep the call

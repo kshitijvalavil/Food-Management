@@ -75,24 +75,43 @@ Deno.test("sherlock lookup-barcode: OFF product with no fields at all -> 'Unknow
   assertEquals(body.item!.expiry_source, "ai_estimate");
 });
 
-Deno.test("FINDING lookup-barcode: OFF fields with the wrong JSON type crash with 500 (current behaviour)", async () => {
-  // OFF is third-party data and is not zod-validated. Expected (after fix): parse the OFF
-  // product with a lenient zod schema (drop bad fields) and still answer 200.
+Deno.test("FIXED lookup-barcode: OFF fields with the wrong JSON type are dropped, still 200", async () => {
+  // Was: an unvalidated OFF field of the wrong type crashed the function with a 500.
   const cases: Record<string, unknown> = {
-    "product_name number": { product_name: 12345 },
-    "brands array": { brands: ["Amul"] },
-    "categories_tags string": { categories_tags: "en:butters" },
-    "quantity object": { quantity: { value: 100 } },
+    "product_name number": { product_name: 12345, brands: "Amul" },
+    "brands array": { product_name: "Amul Butter", brands: ["Amul"] },
+    "categories_tags string": { product_name: "Amul Butter", categories_tags: "en:butters" },
+    "categories_tags mixed": { product_name: "Amul Butter", categories_tags: [1, null, "en:butters"] },
+    "quantity object": { product_name: "Amul Butter", quantity: { value: 100 } },
+    "nutriments array": { product_name: "Amul Butter", nutriments: [722] },
   };
   for (const [label, product] of Object.entries(cases)) {
     const { fb, handler } = await setup();
     fb.off.set(CODE, off(product));
     const { result: res, logs } = await captureLogs(() => handler(post("lookup-barcode", { barcode: CODE })));
     const text = await res.text();
-    assertEquals(res.status, 500, label);
-    assertEquals(ApiError.parse(JSON.parse(text)).error.code, "internal");
+    assertEquals(res.status, 200, label);
+    const body = LookupBarcodeResponse.parse(JSON.parse(text));
+    assertEquals(body.found, true, label);
     assertNoLeak(text, label);
     assertNoLeak(logs, label);
+  }
+  // spot checks: bad fields become null / default, good ones survive
+  const { fb, handler } = await setup();
+  fb.off.set(CODE, off({ product_name: 12345, brands: "Amul", categories_tags: [1, "en:butters"] }));
+  const body = LookupBarcodeResponse.parse(await (await handler(post("lookup-barcode", { barcode: CODE }))).json());
+  assertEquals(body.product_name, "Amul");
+  assertEquals(body.item!.location, "fridge");
+  assertEquals((fb.products.get(CODE)!.raw as Record<string, unknown>).product_name, undefined);
+});
+
+Deno.test("FIXED lookup-barcode: an OFF body of the wrong shape means not found, never a 500", async () => {
+  for (const body of [{ status: 1, product: "Amul" }, { status: 1, product: [1, 2] }, { status: "x" }, [], "ok", null]) {
+    const { fb, handler } = await setup();
+    fb.off.set(CODE, offOk(body));
+    const res = await handler(post("lookup-barcode", { barcode: CODE }));
+    assertEquals(res.status, 200, JSON.stringify(body));
+    assertEquals(LookupBarcodeResponse.parse(await res.json()).found, false);
   }
 });
 
@@ -134,15 +153,36 @@ Deno.test("sherlock lookup-barcode: auth required; no AI call; CORS on errors", 
   assert(fb.aiUsage.size === 0);
 });
 
-Deno.test("FINDING lookup-barcode: no per-user limit, so any signed-in user can drive unlimited OFF calls (current behaviour)", async () => {
-  // Each new barcode is an outbound OFF request and a service-role upsert into products.
-  // Expected (after fix): a cheap per-user cap (e.g. 200/day) or reuse of bump_ai_usage-style counter.
+Deno.test("FIXED lookup-barcode: per-user daily cap on OFF lookups (BARCODE_DAILY_LIMIT, default 200)", async () => {
+  // Was: unlimited outbound OFF calls and service-role upserts per signed-in user.
   const { fb, handler } = await setup();
-  for (let i = 0; i < 50; i++) {
+  fb.env.BARCODE_DAILY_LIMIT = "10";
+  for (let i = 0; i < 12; i++) {
     const code = String(10000000 + i);
     fb.off.set(code, offOk({ code, status: 1, product: { product_name: `P${i}` } }));
-    assertEquals((await handler(post("lookup-barcode", { barcode: code }))).status, 200);
+    const res = await handler(post("lookup-barcode", { barcode: code }));
+    assertEquals(res.status, i < 10 ? 200 : 429, `lookup ${i + 1}`);
+    if (i >= 10) assertEquals(ApiError.parse(await res.json()).error.code, "rate_limited");
   }
-  assertEquals(fb.callsTo("world.openfoodfacts.org").length, 50);
-  assertEquals(fb.products.size, 50);
+  assertEquals(fb.callsTo("world.openfoodfacts.org").length, 10);
+  assertEquals(fb.products.size, 10);
+  // Cache hits stay free over the cap, and the AI counter is a separate key.
+  assertEquals((await handler(post("lookup-barcode", { barcode: "10000003" }))).status, 200);
+  const keys = [...fb.aiUsage.keys()];
+  assertEquals(keys.length, 1);
+  assert(keys[0].endsWith("|3026-11-18"), keys[0]);
+  // Blank or junk falls back to 200.
+  fb.env.BARCODE_DAILY_LIMIT = " ";
+  fb.off.set("20000000", offOk({ status: 1, product: { product_name: "Q" } }));
+  assertEquals((await handler(post("lookup-barcode", { barcode: "20000000" }))).status, 200);
+});
+
+Deno.test("sherlock lookup-barcode: over the cap with an old cached copy -> the old copy, no OFF call", async () => {
+  const { fb, handler } = await setup();
+  fb.env.BARCODE_DAILY_LIMIT = "0";
+  fb.products.set(CODE, { barcode: CODE, name: "Old Butter", brand: "Amul", pack_size: "100 g", kcal_per_100g: 700, raw: null, fetched_at: "2020-01-01T00:00:00Z" });
+  const res = await handler(post("lookup-barcode", { barcode: CODE }));
+  assertEquals(res.status, 200);
+  assertEquals(LookupBarcodeResponse.parse(await res.json()).product_name, "Old Butter");
+  assertEquals(fb.callsTo("world.openfoodfacts.org").length, 0);
 });

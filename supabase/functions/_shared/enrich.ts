@@ -46,6 +46,28 @@ export async function matchShelfLife(
   return null;
 }
 
+/** Confidence given to items the user must check ("check me" is confidence < 0.7). */
+export const REVIEW_CONFIDENCE = 0.5;
+
+const SUSPICIOUS_NAME = new RegExp(
+  [
+    String.raw`https?:\/\/`,
+    String.raw`\bwww\.`,
+    String.raw`\b[a-z0-9-]+\.(com|net|org|io|xyz|ru|cn|info|app|dev|link|ly)\b`,
+    String.raw`\b(ignore|disregard|forget|override)\b.{0,40}\b(instructions?|previous|above|rules|prompt)\b`,
+    String.raw`\b(system|assistant|developer)\s*:`,
+    String.raw`\byou are now\b`,
+    String.raw`\b(api[\s_-]?key|password)\b`,
+    String.raw`<\s*\/?\s*[a-z!]`,
+  ].join("|"),
+  "i",
+);
+
+/** True for item names that read like instructions, URLs or markup rather than food. */
+export function looksLikeInstruction(name: string): boolean {
+  return SUSPICIOUS_NAME.test(name);
+}
+
 export interface EnrichExtras {
   estimated_days_left?: number | null;
   kcal_per_100g?: number | null;
@@ -63,17 +85,22 @@ export async function enrichItems(
     items.map(async (it) => {
       const row = await matchShelfLife(client, it, cache);
       const expiry = computeExpiry(it, row, addedOn, it.estimated_days_left ?? null);
+      // "check me" on the review sheet: an already-past printed date, or a name that looks
+      // like injected instructions / a URL rather than a food.
+      const needsReview = expiry.review_reason !== undefined || looksLikeInstruction(it.name);
       return {
         name: it.name,
         quantity: it.quantity,
         unit: it.unit,
         location: it.location,
         printed_date: it.printed_date,
-        confidence: it.confidence,
+        confidence: needsReview ? Math.min(it.confidence, REVIEW_CONFIDENCE) : it.confidence,
         category_hint: it.category_hint,
         barcode: it.barcode,
         shelf_life_id: row?.id ?? null,
-        ...expiry,
+        expires_on: expiry.expires_on,
+        expiry_source: expiry.expiry_source,
+        expiry_range_days: expiry.expiry_range_days,
         kcal_per_unit: it.kcal_per_unit ?? null,
         kcal_per_100g: it.kcal_per_100g ?? null,
       };

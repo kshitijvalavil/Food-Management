@@ -6,7 +6,7 @@ import { AnalyzePhotoRequest, AnalyzePhotoResponse } from "../../../shared/schem
 import { PHOTO_SYSTEM_PROMPT, photoUserText } from "../../../shared/prompts/photo.ts";
 import { adminClient, isHouseholdMember, requireUser } from "../_shared/auth.ts";
 import { extractItems, MODELS } from "../_shared/claude.ts";
-import { defaultDeps, type Deps, todayUtc } from "../_shared/deps.ts";
+import { defaultDeps, type Deps, resolveToday } from "../_shared/deps.ts";
 import { enrichItems } from "../_shared/enrich.ts";
 import { HttpError } from "../_shared/errors.ts";
 import { jsonHandler } from "../_shared/handler.ts";
@@ -63,8 +63,8 @@ export function createHandler(deps: Deps) {
 
     await consumeAiCall(admin, userId, deps);
 
-    const today = todayUtc(deps);
-    const { items } = await extractItems(deps, {
+    const today = resolveToday(deps, body.today);
+    const { items, dropped } = await extractItems(deps, {
       model: MODELS.vision,
       system: PHOTO_SYSTEM_PROMPT,
       effort: "medium",
@@ -75,7 +75,7 @@ export function createHandler(deps: Deps) {
     });
 
     const enriched = await enrichItems(userClient, items, today);
-    return { items: enriched, flagged: enriched.filter((i) => i.confidence < LOW_CONFIDENCE).length };
+    return { items: enriched, flagged: enriched.filter((i) => i.confidence < LOW_CONFIDENCE).length, dropped };
   });
 }
 

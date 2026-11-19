@@ -1,7 +1,14 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import { adminClient } from "./auth.ts";
 import { HttpError } from "./errors.ts";
-import { consumeAiCall, DEFAULT_AI_DAILY_LIMIT, dailyLimit } from "./ratelimit.ts";
+import {
+  consumeAiCall,
+  counterDay,
+  DEFAULT_AI_DAILY_LIMIT,
+  DEFAULT_BARCODE_DAILY_LIMIT,
+  dailyLimit,
+  limitFor,
+} from "./ratelimit.ts";
 import { FakeBackend, USER } from "./testing.ts";
 
 Deno.test("dailyLimit: 40 by default, AI_DAILY_LIMIT overrides, junk ignored", () => {
@@ -14,6 +21,24 @@ Deno.test("dailyLimit: 40 by default, AI_DAILY_LIMIT overrides, junk ignored", (
   assertEquals(dailyLimit(fb.deps()), 40);
   fb.env.AI_DAILY_LIMIT = "-3";
   assertEquals(dailyLimit(fb.deps()), 40);
+  for (const blank of ["", " ", "\t\n"]) {
+    fb.env.AI_DAILY_LIMIT = blank;
+    assertEquals(dailyLimit(fb.deps()), 40, JSON.stringify(blank));
+  }
+  fb.env.AI_DAILY_LIMIT = "0";
+  assertEquals(dailyLimit(fb.deps()), 0, "an explicit 0 still switches AI off");
+});
+
+Deno.test("barcode counter: own default and env, and a p_day that never collides with AI days", () => {
+  const fb = new FakeBackend();
+  assertEquals(limitFor(fb.deps(), "barcode"), DEFAULT_BARCODE_DAILY_LIMIT);
+  assertEquals(DEFAULT_BARCODE_DAILY_LIMIT, 200);
+  fb.env.BARCODE_DAILY_LIMIT = "15";
+  assertEquals(limitFor(fb.deps(), "barcode"), 15);
+  assertEquals(limitFor(fb.deps(), "ai"), 40);
+  assertEquals(counterDay("2026-11-18", "ai"), "2026-11-18");
+  assertEquals(counterDay("2026-11-18", "barcode"), "3026-11-18");
+  assertEquals(counterDay("2028-02-29", "barcode"), "3028-02-29"); // 3028 is a leap year too
 });
 
 Deno.test("consumeAiCall: counts per user per UTC day and stops at the cap", async () => {

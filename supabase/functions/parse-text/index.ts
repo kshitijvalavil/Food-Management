@@ -5,7 +5,7 @@ import { ParseTextRequest, ParseTextResponse } from "../../../shared/schema.ts";
 import { TEXT_SYSTEM_PROMPT, textUserText } from "../../../shared/prompts/text.ts";
 import { adminClient, requireUser } from "../_shared/auth.ts";
 import { extractItems, MODELS } from "../_shared/claude.ts";
-import { defaultDeps, type Deps, todayUtc } from "../_shared/deps.ts";
+import { defaultDeps, type Deps, resolveToday } from "../_shared/deps.ts";
 import { enrichItems } from "../_shared/enrich.ts";
 import { HttpError } from "../_shared/errors.ts";
 import { jsonHandler } from "../_shared/handler.ts";
@@ -19,8 +19,8 @@ export function createHandler(deps: Deps) {
 
     await consumeAiCall(adminClient(deps), userId, deps);
 
-    const today = todayUtc(deps);
-    const { items } = await extractItems(deps, {
+    const today = resolveToday(deps, body.today);
+    const { items, dropped } = await extractItems(deps, {
       model: MODELS.text,
       system: TEXT_SYSTEM_PROMPT,
       effort: "low",
@@ -28,7 +28,7 @@ export function createHandler(deps: Deps) {
       content: [{ type: "text", text: textUserText({ today, text: body.text }) }],
     });
 
-    return { items: await enrichItems(userClient, items, today) };
+    return { items: await enrichItems(userClient, items, today), dropped };
   });
 }
 

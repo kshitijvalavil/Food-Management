@@ -1,13 +1,15 @@
 // POST /lookup-barcode  { barcode }  ->  LookupBarcodeResponse
 // `products` cache first, then Open Food Facts; the result is cached for OFF_CACHE_DAYS.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import { LookupBarcodeRequest, LookupBarcodeResponse } from "../../../shared/schema.ts";
 import type { Location } from "../../../shared/schema.ts";
 import { adminClient, requireUser } from "../_shared/auth.ts";
-import { defaultDeps, type Deps, todayUtc } from "../_shared/deps.ts";
+import { defaultDeps, type Deps, resolveToday } from "../_shared/deps.ts";
 import { enrichItems } from "../_shared/enrich.ts";
 import { HttpError } from "../_shared/errors.ts";
 import { jsonHandler } from "../_shared/handler.ts";
+import { consumeDaily } from "../_shared/ratelimit.ts";
 
 export const OFF_FIELDS = "product_name,brands,quantity,nutriments,categories_tags";
 export const OFF_USER_AGENT = "ShelfLife/0.1 (personal project)";
@@ -18,13 +20,30 @@ export function offUrl(barcode: string): string {
   return `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=${OFF_FIELDS}`;
 }
 
-export interface OffProduct {
-  product_name?: string;
-  brands?: string;
-  quantity?: string;
-  nutriments?: Record<string, unknown>;
-  categories_tags?: string[];
+/**
+ * Open Food Facts is third-party data: every field is optional and a field with the wrong
+ * type is dropped (never a 500). Unknown fields are stripped before caching.
+ */
+export const OffProductSchema = z.object({
+  product_name: z.string().optional().catch(undefined),
+  brands: z.string().optional().catch(undefined),
+  quantity: z.string().optional().catch(undefined),
+  nutriments: z.record(z.string(), z.unknown()).optional().catch(undefined),
+  categories_tags: z.array(z.unknown()).transform((tags) => tags.filter((t): t is string => typeof t === "string"))
+    .optional().catch(undefined),
+});
+export type OffProduct = z.infer<typeof OffProductSchema>;
+
+/** Parses OFF product data leniently; anything that is not an object becomes {}. */
+export function parseOffProduct(value: unknown): OffProduct {
+  const r = OffProductSchema.safeParse(value);
+  return r.success ? r.data : {};
 }
+
+const OffBodySchema = z.object({
+  status: z.union([z.number(), z.string()]).optional().catch(undefined),
+  product: z.unknown(),
+});
 
 /** Row shape of the `products` cache table. */
 export interface ProductRow {
@@ -118,9 +137,19 @@ export async function fetchOff(deps: Deps, barcode: string): Promise<OffResult> 
     await res.body?.cancel();
     throw new Error(`OFF HTTP ${res.status}`);
   }
-  const body = await res.json() as { status?: number; product?: OffProduct };
-  if (body.status !== 1 || !body.product) return { kind: "not_found" };
-  return { kind: "found", product: body.product };
+  let json: unknown;
+  try {
+    json = await res.json();
+  } catch {
+    throw new Error("OFF returned non-JSON");
+  }
+  const body = OffBodySchema.safeParse(json);
+  if (!body.success) return { kind: "not_found" };
+  const { status, product } = body.data;
+  if (Number(status) !== 1 || !product || typeof product !== "object" || Array.isArray(product)) {
+    return { kind: "not_found" };
+  }
+  return { kind: "found", product: parseOffProduct(product) };
 }
 
 async function readCache(admin: SupabaseClient, barcode: string): Promise<ProductRow | null> {
@@ -129,7 +158,10 @@ async function readCache(admin: SupabaseClient, barcode: string): Promise<Produc
     console.warn(`[lookup-barcode] cache read failed: ${error.message}`);
     return null;
   }
-  return (data as ProductRow | null) ?? null;
+  if (!data) return null;
+  const row = data as ProductRow;
+  // `raw` is stored OFF data: re-validate it like a fresh response.
+  return { ...row, raw: row.raw == null ? null : parseOffProduct(row.raw) };
 }
 
 function cacheDays(deps: Deps): number {
@@ -139,7 +171,7 @@ function cacheDays(deps: Deps): number {
 
 export function createHandler(deps: Deps) {
   return jsonHandler("lookup-barcode", LookupBarcodeRequest, LookupBarcodeResponse, deps, async ({ req, body }) => {
-    const { userClient } = await requireUser(req, deps);
+    const { userId, userClient } = await requireUser(req, deps);
     const admin = adminClient(deps);
     const barcode = body.barcode;
     const now = deps.now();
@@ -150,13 +182,24 @@ export function createHandler(deps: Deps) {
 
     let row: ProductRow | null = fresh ? cached : null;
     if (!row) {
-      let off: OffResult | null = null;
+      // Only lookups that go out to OFF count against BARCODE_DAILY_LIMIT; cache hits are free.
+      let allowed = true;
       try {
-        off = await fetchOff(deps, barcode);
+        await consumeDaily(admin, userId, deps, "barcode");
       } catch (err) {
-        console.warn(`[lookup-barcode] ${err instanceof Error ? err.message : String(err)}`);
-        if (!cached) throw new HttpError("upstream_failed", "Open Food Facts is not answering. Try again.");
-        row = cached; // OFF is down: serve the stale cache entry
+        if (!(err instanceof HttpError) || err.code !== "rate_limited" || !cached) throw err;
+        allowed = false; // over the cap but we have an old copy: serve it
+        row = cached;
+      }
+      let off: OffResult | null = null;
+      if (allowed) {
+        try {
+          off = await fetchOff(deps, barcode);
+        } catch (err) {
+          console.warn(`[lookup-barcode] ${err instanceof Error ? err.message : String(err)}`);
+          if (!cached) throw new HttpError("upstream_failed", "Open Food Facts is not answering. Try again.");
+          row = cached; // OFF is down: serve the stale cache entry
+        }
       }
       if (off?.kind === "not_found") {
         return { found: false, item: null, product_name: null, brand: null, pack_size: null };
@@ -187,7 +230,7 @@ export function createHandler(deps: Deps) {
       barcode,
       kcal_per_100g: kcal100,
       kcal_per_unit: kcal100 !== null && grams !== null ? Math.round((kcal100 * grams) / 100) : null,
-    }], todayUtc(deps));
+    }], resolveToday(deps, body.today));
 
     return { found: true, item, product_name: name, brand, pack_size: packSize };
   });
