@@ -1,5 +1,5 @@
 // Sherlock Bugs: Review screen edge cases (unit level). E2E versions live in e2e/sherlock-review.spec.ts.
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ReviewScreen } from "@/components/ReviewScreen";
@@ -36,9 +36,11 @@ describe("Review edge cases", () => {
   it("removing every row shows the empty state and disables Save", async () => {
     draft.add([item({ name: "A" }), item({ name: "B" })], "search");
     render(<ReviewScreen onSave={vi.fn()} today={TODAY} />);
-    while (screen.queryAllByTestId("review-row-toggle").length) {
+    // Wait out each row's framer-motion exit so the next click hits a live row.
+    for (let left = 2; left > 0; left--) {
       await userEvent.click(screen.getAllByTestId("review-row-toggle")[0]!);
       await userEvent.click(screen.getByTestId("review-remove"));
+      await waitFor(() => expect(screen.queryAllByTestId("review-row-toggle")).toHaveLength(left - 1));
     }
     expect(screen.getByTestId("review-title")).toHaveTextContent("Review 0 items");
     expect(screen.getByText("Nothing to review")).toBeInTheDocument();
@@ -97,7 +99,9 @@ describe("Review edge cases", () => {
     expect(screen.getByTestId("review-blocked")).toHaveTextContent("Check 2 items first.");
     await userEvent.click(screen.getAllByTestId("check-me-yes")[0]!);
     expect(screen.getByTestId("review-save")).toBeDisabled();
-    await userEvent.click(screen.getByTestId("check-me-change"));
+    // The confirmed card may still be in its framer-motion exit animation, so target Mint's card.
+    const mint = screen.getAllByTestId("check-me").find((el) => el.getAttribute("data-name") === "Mint")!;
+    await userEvent.click(within(mint).getByTestId("check-me-change"));
     await userEvent.clear(screen.getByTestId("review-name-input"));
     await userEvent.type(screen.getByTestId("review-name-input"), "Spinach");
     await userEvent.click(screen.getByTestId("check-me-done"));
