@@ -1,0 +1,41 @@
+{
+  "code": "8901262010023",
+  "product": {
+    "brands": "Amul",
+    "categories_tags": [
+      "en:dairies",
+      "en:fats",
+      "en:spreads",
+      "en:spreadable-fats",
+      "en:animal-fats",
+      "en:milkfat",
+      "en:butters",
+      "en:salted-butters"
+    ],
+    "nutriments": {
+      "carbohydrates": 0,
+      "carbohydrates_100g": 0,
+      "energy": 3021,
+      "energy-kcal": 722,
+      "energy-kcal_100g": 722,
+      "energy-kcal_unit": "kcal",
+      "energy-kj": 3021,
+      "energy-kj_100g": 3021,
+      "energy_100g": 3021,
+      "fat": 80,
+      "fat_100g": 80,
+      "proteins": 0.5,
+      "proteins_100g": 0.5,
+      "salt": 2.5,
+      "salt_100g": 2.5,
+      "saturated-fat": 51,
+      "saturated-fat_100g": 51,
+      "sugars": 0,
+      "sugars_100g": 0
+    },
+    "product_name": "Amul Butter",
+    "quantity": "100 g"
+  },
+  "status": 1,
+  "status_verbose": "product found"
+}
