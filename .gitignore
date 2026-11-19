@@ -15,3 +15,11 @@ test-results/
 playwright-report/
 playwright/.cache/
 .DS_Store
+# Kept from claude/shelflife-setup: never commit env files, keys or signing material
+.env*
+!.env.example
+secrets/
+*.p8
+*.jks
+dist/
+.expo/
