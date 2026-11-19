@@ -5,7 +5,7 @@
     "jsr:@std/encoding@1.0.10": "1.0.10",
     "jsr:@std/internal@^1.0.6": "1.0.14",
     "npm:@supabase/supabase-js@2.45.4": "2.45.4",
-    "npm:zod@3.23.8": "3.23.8"
+    "npm:zod@^4.6.7": "4.6.7"
   },
   "jsr": {
     "@std/assert@1.0.13": {
@@ -106,8 +106,8 @@
     "ws@8.23.0": {
       "integrity": "sha512-wCkmX8QMOrKjgO8HW2WyDbTSGeqkocxgDzS9iR79rEAexty6/2qzilx3Ag8Tqf9ykop3irLKle0MtVn5qjVnoQ=="
     },
-    "zod@3.23.8": {
-      "integrity": "sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g=="
+    "zod@4.6.7": {
+      "integrity": "sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg=="
     }
   },
   "workspace": {
@@ -115,7 +115,7 @@
       "jsr:@std/assert@1.0.13",
       "jsr:@std/encoding@1.0.10",
       "npm:@supabase/supabase-js@2.45.4",
-      "npm:zod@3.23.8"
+      "npm:zod@^4.6.7"
     ]
   }
 }

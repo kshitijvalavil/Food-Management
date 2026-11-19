@@ -1,6 +1,6 @@
 {
   "imports": {
-    "zod": "npm:zod@3.23.8",
+    "zod": "npm:zod@^4.6.7",
     "@supabase/supabase-js": "npm:@supabase/supabase-js@2.45.4",
     "@std/assert": "jsr:@std/assert@1.0.13",
     "@std/encoding/base64": "jsr:@std/encoding@1.0.10/base64"
