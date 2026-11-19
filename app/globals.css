@@ -1,0 +1,71 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+@import "../styles/components.css";
+
+/* Tailwind utilities read the tokens, so `bg-surf`, `text-muted`, `text-fresh` follow light/dark. */
+@theme inline {
+  --color-bg: var(--a-bg);
+  --color-surf: var(--a-surf);
+  --color-seg: var(--a-seg);
+  --color-ink: var(--a-ink);
+  --color-ink-2: var(--a-ink-2);
+  --color-muted: var(--a-muted);
+  --color-line: var(--a-line);
+  --color-indigo: var(--a-indigo);
+  --color-indigo-2: var(--a-indigo-2);
+  --color-indigo-soft: var(--a-indigo-soft);
+  --color-accent: var(--a-accent);
+  --color-on: var(--a-on);
+  --color-kraft: var(--a-kraft);
+  --color-kraft-ink: var(--a-kraft-ink);
+  --color-fresh: var(--fresh);
+  --color-soon: var(--soon);
+  --color-today: var(--today);
+  --color-gone: var(--gone);
+  --color-fresh-t: var(--fresh-t);
+  --color-soon-t: var(--soon-t);
+  --color-today-t: var(--today-t);
+  --color-gone-t: var(--gone-t);
+  --color-soon-ink: var(--soon-ink);
+  --color-today-ink: var(--today-ink);
+  --color-cam: var(--cam);
+  --color-cam-2: var(--cam-2);
+  --color-cam-ink: var(--cam-ink);
+  --color-cam-muted: var(--cam-muted);
+  --color-det-low: var(--det-low);
+  --font-display: var(--display);
+  --font-body: var(--body);
+  --font-mono: var(--mono);
+  --radius-pnl: 20px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    background: var(--a-bg);
+  }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--a-bg);
+    color: var(--a-ink);
+    font: 400 16px/1.4 var(--body);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+  :focus-visible {
+    outline: 2.5px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  button {
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}

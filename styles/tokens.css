@@ -1,0 +1,116 @@
+/*
+ * ShelfLife design tokens. Source of truth: the round-2 mockups.
+ * Light values are copied from the mockup's --a-* app tokens. Dark values are new
+ * (the mockup only darkens its page chrome) and keep the same roles and contrast.
+ */
+:root {
+  --a-bg: #eeefea;
+  --a-surf: #ffffff;
+  --a-seg: #e1e3dd;
+  --a-ink: #15172b;
+  --a-ink-2: #3e4155;
+  --a-muted: #5f6275; /* mockup #6A6D7F nudged darker: 4.6:1 on --a-bg at real text sizes */
+  --a-line: #e2e4df;
+  --a-indigo: #2e31a0; /* fills: buttons, add tab, Tonight card */
+  --a-indigo-2: #1c1e6b;
+  --a-indigo-soft: #e3e4f6;
+  --a-accent: #2e31a0; /* indigo used as text/icon colour */
+  --a-on: #ffffff;
+  --a-kraft: #e2cb9f;
+  --a-kraft-2: #b99a62;
+  --a-kraft-ink: #3f2c0f;
+  --scrim: rgba(14, 16, 30, 0.46);
+  --shadow: rgba(18, 20, 40, 0.16);
+  --focus: #dd4527;
+
+  /* Freshness scale: the only colours that carry meaning. */
+  --fresh: #3d8b3f;
+  --soon: #d99a06;
+  --today: #dd4527;
+  --gone: #7c5569;
+  --fresh-t: #dfedd9;
+  --soon-t: #fbeecc;
+  --today-t: #f9ddd3;
+  --gone-t: #ece0e6;
+  --fresh-ink: #2c6a2e;
+  --soon-ink: #7e5600;
+  --today-ink: #a8301a;
+  --gone-ink: #6a4558;
+  --trk: #e1e2dc;
+
+  /* Camera and voice screens are dark in both themes. */
+  --cam: #0b0c0f;
+  --cam-2: #23252c;
+  --cam-ink: #f5f6f8;
+  --cam-muted: #a3a6b0;
+  --det: #ffffff;
+  --det-faint: rgba(255, 255, 255, 0.28);
+  --det-low: #f4c430;
+  --glass-dk: rgba(20, 24, 22, 0.42);
+  --vc-2: rgba(255, 255, 255, 0.09);
+  --vc-mark: rgba(244, 196, 48, 0.42);
+  --vc-dim: rgba(255, 255, 255, 0.62);
+
+  /* Food illustration palette (unchanged in dark mode: food keeps its colour). */
+  --f-leaf: #3f8a3b; --f-leaf2: #64ac48; --f-leaf3: #2b6630; --f-stem: #5f923e;
+  --f-tom: #e1452b; --f-tom2: #a92b19; --f-calyx: #3f7a2e;
+  --f-egg: #f3eada; --f-egg2: #dcc9a6; --f-yolk: #f2b21c; --f-yolk2: #de9410;
+  --f-milk: #fbfbfa; --f-milk2: #3b62b5; --f-milk3: #d5dbe4;
+  --f-pn: #f8f3e6; --f-pn2: #e7dcc1; --f-pn3: #d2c39e;
+  --f-but: #f5cd4a; --f-but2: #fbe08a; --f-but3: #d9a12a; --f-lid: #c8432f;
+  --f-wheat: #e2b06a; --f-wheat2: #b97c38; --f-rice: #f8f5ee; --f-rice2: #e2dccb;
+  --f-sack: #cdb184; --f-sack2: #a88a5b; --f-bisc: #e0a658; --f-bisc2: #b47731;
+  --f-lemon: #f1d13a; --f-lemon2: #cfae18; --f-curd: #fcfbf7;
+  --f-steel: #cbd0d6; --f-steel2: #e4e7eb; --f-steel3: #a6adb6;
+  --f-gravy: #3c7c2b; --f-gravy2: #5a993a; --f-cream: #fff5de; --f-onion: #c7577f; --f-seed: #2a2220; --f-pom: #c9283e;
+  --dt1: #dcead3; --dt2: #f6e5c2; --dt3: #e5e3f2;
+
+  --display: var(--font-archivo), "Arial Narrow", system-ui, sans-serif;
+  --body: var(--font-instrument), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: var(--font-plex), ui-monospace, Menlo, Consolas, monospace;
+
+  --tabbar-h: 64px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --a-bg: #0f1015;
+    --a-surf: #1b1d26;
+    --a-seg: #2a2d38;
+    --a-ink: #ecedf3;
+    --a-ink-2: #c3c5d3;
+    --a-muted: #9a9daf;
+    --a-line: #2c2f3a;
+    --a-indigo: #4a4ed6;
+    --a-indigo-2: #14164f;
+    --a-indigo-soft: #23265a;
+    --a-accent: #a9acff;
+    --a-kraft: #3b3122;
+    --a-kraft-2: #7a6440;
+    --a-kraft-ink: #ecd8ae;
+    --scrim: rgba(0, 0, 0, 0.6);
+    --shadow: rgba(0, 0, 0, 0.5);
+    --fresh: #5db35f;
+    --soon: #eeb02a;
+    --today: #f2694b;
+    --gone: #b88aa2;
+    --fresh-t: #1d3220;
+    --soon-t: #3a2d0e;
+    --today-t: #3e1d16;
+    --gone-t: #33252d;
+    --fresh-ink: #8fd48f;
+    --soon-ink: #f5c752;
+    --today-ink: #ff9a80;
+    --gone-ink: #d9b3c7;
+    --trk: #2c2f3a;
+    --dt1: #24352a;
+    --dt2: #3b3322;
+    --dt3: #2a2a40;
+    color-scheme: dark;
+  }
+}
