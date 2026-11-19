@@ -30,11 +30,11 @@
   .tx { flex: 1; min-width: 0; display: grid; gap: 2px; }
 
   /* ring = share of shelf life left, drawn as a conic gradient around a food tile */
-  .ring { --p: 50; width: 48px; height: 48px; flex: none; border-radius: 50%; padding: 3px; background: conic-gradient(var(--c) calc(var(--p) * 1%), var(--trk) 0); }
-  .ring > svg, .ring > .ring-in { display: block; width: 100%; height: 100%; border-radius: 50%; background: var(--t); border: 2.5px solid var(--ring-gap, var(--a-surf)); }
-  .ring.on-bg { --ring-gap: var(--a-bg); }
-  .ring.big { width: 120px; height: 120px; padding: 6px; }
-  .ring.big > svg { border-width: 4px; --ring-gap: var(--a-bg); }
+  .fring { --p: 50; width: 48px; height: 48px; flex: none; border-radius: 50%; padding: 3px; background: conic-gradient(var(--c) calc(var(--p) * 1%), var(--trk) 0); }
+  .fring > svg, .fring > .fring-in { display: block; width: 100%; height: 100%; border-radius: 50%; background: var(--t); border: 2.5px solid var(--ring-gap, var(--a-surf)); }
+  .fring.on-bg { --ring-gap: var(--a-bg); }
+  .fring.big { width: 120px; height: 120px; padding: 6px; }
+  .fring.big > svg { border-width: 4px; --ring-gap: var(--a-bg); }
   .tile { width: 44px; height: 44px; flex: none; border-radius: 14px; overflow: hidden; background: var(--t, var(--a-seg)); }
   .tile > svg { display: block; width: 100%; height: 100%; }
   .initial { display: grid; place-items: center; width: 100%; height: 100%; font: 800 20px/1 var(--display); font-stretch: 72%; color: var(--a-ink-2); }

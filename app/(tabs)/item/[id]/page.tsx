@@ -2,12 +2,12 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { DayCount, FreshnessRing, SourceStamp } from "@/components/Freshness";
+import { FreshnessRing, SourceStamp } from "@/components/Freshness";
 import { Icon } from "@/components/Icon";
 import { EmptyState, Screen } from "@/components/Screen";
 import { previewExpiry } from "@/lib/api";
 import { dayDate, shortDate } from "@/lib/dates";
-import { daysLeftFor, freshClass, totalDaysFor } from "@/lib/freshness";
+import { dayNumber, daySpoken, daysLeftFor, freshClass, totalDaysFor } from "@/lib/freshness";
 import { useItem, useSetStatus, useToday, useUpdateItem } from "@/lib/hooks";
 import { LOCATION_LABEL, amountLabel, quantityStep, type KitchenItem } from "@/lib/types";
 
@@ -87,8 +87,11 @@ export default function ItemPage() {
 
       <div className={`facts ${freshClass(daysLeft)}`}>
         <span>
-          <DayCount daysLeft={daysLeft} className="!text-left !text-[29px]" />
-          {daysLeft < 0 ? "Past date" : "Days left"}
+          <b className="c" data-testid="day-count" data-days={daysLeft} aria-hidden="true">
+            {dayNumber(daysLeft)}
+          </b>
+          <span className="sr-only">{daySpoken(daysLeft)}</span>
+          <span aria-hidden="true">{daysLeft < 0 ? "Past date" : "Days left"}</span>
         </span>
         <span>
           <b>{item.expiry_source === "printed" ? "" : "~"}{shortDate(item.expires_on)}</b>Best by

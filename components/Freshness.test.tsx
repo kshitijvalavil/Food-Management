@@ -37,7 +37,7 @@ describe("<FreshnessRing>", () => {
   it("sets the band class and fill from days left", () => {
     render(<FreshnessRing name="Palak" daysLeft={1} totalDays={5} />);
     const ring = screen.getByTestId("fresh-ring");
-    expect(ring).toHaveClass("ring", "s-t");
+    expect(ring).toHaveClass("fring", "s-t");
     expect(ring).toHaveAttribute("data-freshness", "today");
     expect(ring).toHaveAttribute("data-percent", "20");
     expect(ring.style.getPropertyValue("--p")).toBe("20");

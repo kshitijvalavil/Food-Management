@@ -46,7 +46,8 @@ export function AddSheet() {
   const { open, setOpen } = useAddSheet();
   const close = useCallback(() => setOpen(false), [setOpen]);
   return (
-    <Sheet open={open} onClose={close} title="Add food" testId="add-sheet" bottomOffset={0}>
+    // Sits above the tab bar, whose "x" closes it (mockup 1.1).
+    <Sheet open={open} onClose={close} title="Add food" testId="add-sheet" bottomOffset="calc(var(--tabbar-h) + var(--safe-bottom))">
       <div>
         <p className="h-title" aria-hidden="true">
           Add food
@@ -77,9 +78,6 @@ export function AddSheet() {
         ))}
       </div>
       <LastAdded />
-      <button type="button" className="btn g" onClick={close} data-testid="add-sheet-close">
-        Close
-      </button>
     </Sheet>
   );
 }

@@ -17,7 +17,7 @@ export function Sheet({
   children: React.ReactNode;
   testId?: string;
   /** Leave the tab bar visible under the sheet (mockup 1.1). */
-  bottomOffset?: number;
+  bottomOffset?: number | string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const opener = useRef<Element | null>(null);

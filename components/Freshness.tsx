@@ -8,7 +8,7 @@ export function FoodMark({ name }: { name: string }) {
   const id = foodSymbol(name);
   if (!id) {
     return (
-      <span className="ring-in initial" aria-hidden="true">
+      <span className="fring-in initial" aria-hidden="true">
         {name.trim().charAt(0).toUpperCase() || "?"}
       </span>
     );
@@ -55,7 +55,7 @@ export function FreshnessRing({
   const p = ringPercent(daysLeft, totalDays);
   return (
     <span
-      className={`ring ${freshClass(daysLeft)} ${size === "big" ? "big" : ""} ${onBg ? "on-bg" : ""}`}
+      className={`fring ${freshClass(daysLeft)} ${size === "big" ? "big" : ""} ${onBg ? "on-bg" : ""}`}
       style={{ "--p": p } as React.CSSProperties}
       data-testid="fresh-ring"
       data-freshness={freshness(daysLeft)}
