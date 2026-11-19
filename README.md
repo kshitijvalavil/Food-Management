@@ -16,6 +16,38 @@ Next.js (App Router, TypeScript) as an installable PWA · Tailwind · Framer Mot
 2. iPhone: Share → **Add to Home Screen**. Android: **Install app**.
 3. Open ShelfLife from the home-screen icon. Allow camera and notifications.
 
+## Run locally
+Needs Node 20.11 or later.
+
+```bash
+npm install
+npm run dev                      # http://localhost:3000, demo mode (no backend needed)
+```
+
+**Demo mode** is on when `NEXT_PUBLIC_DEMO=1` is set or the Supabase variables are missing. It uses local fixtures: a 7-item fridge-shelf photo result, the Amul butter barcode `8901262010023`, a 30-item search list and a seeded kitchen. Everything is stored in your browser's IndexedDB. Use **Me → Reset demo kitchen** to start over.
+
+**Real mode:** copy the two public values into `.env.local`. Only these two may be public; every other key lives in Supabase or Vercel secrets.
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
+```
+Sign-in is by magic link (`/login` → `/auth/callback`).
+
+**Phone only.** Laptops and iPads are redirected to `/open-on-phone`. To develop on a laptop, either use your browser's device toolbar (phone width and a phone user agent), or open `http://localhost:3000/?phone=1` once. That sets a cookie that skips the gate for 30 days.
+
+**Try it on a phone on the same Wi-Fi:** `npm run build && npm start -- -H 0.0.0.0`, then scan the QR code on `/open-on-phone` from your laptop. The camera and microphone need HTTPS everywhere except `localhost`, so use a Vercel preview link to test those.
+
+| Command | What it does |
+|---|---|
+| `npm run typecheck` | `tsc` for the app and the service worker |
+| `npm run lint` | ESLint (next/core-web-vitals + next/typescript) |
+| `npm test` | Vitest + Testing Library (`shared/**`, `lib/**`, `components/**`; never `supabase/**`) |
+| `npm run build` | Production build, including the Serwist service worker `public/sw.js` |
+| `npm run e2e` | Playwright on "iPhone 15" and "Pixel 8". Build with `NEXT_PUBLIC_DEMO=1 npm run build` first; it starts `next start` on port 3210 |
+| `npm run icons` | Regenerates `public/icons/*.png` from the logo (sharp) |
+
+Opt-in screenshot tour for design review: `SHOTS_DIR=/tmp/shots npx playwright test screens --project="iPhone 15"`.
+
 ## Docs
 - [docs/PLAN.md](docs/PLAN.md): scope and the two sprints
 - [docs/BOTS.md](docs/BOTS.md): the bot team, their models, and how they work without approvals
