@@ -4,6 +4,7 @@ import {
   computeExpiry,
   daysLeft,
   FALLBACK_DAYS,
+  isoDateInTimeZone,
   isPlausiblePrintedDate,
   parseIsoDate,
   shelfLifeRange,
@@ -59,11 +60,13 @@ describe("isPlausiblePrintedDate", () => {
   it("accepts dates in the window", () => {
     expect(isPlausiblePrintedDate("2026-11-25", ADDED)).toBe(true);
     expect(isPlausiblePrintedDate(ADDED, ADDED)).toBe(true);
-    expect(isPlausiblePrintedDate("2026-10-19", ADDED)).toBe(true); // exactly 30 days ago
+    expect(isPlausiblePrintedDate("2026-10-19", ADDED)).toBe(true); // 30 days ago
+    expect(isPlausiblePrintedDate("2026-09-01", ADDED)).toBe(true); // long expired, still real
+    expect(isPlausiblePrintedDate("2021-11-18", ADDED)).toBe(true); // exactly 5 years ago
     expect(isPlausiblePrintedDate("2029-11-18", ADDED)).toBe(true); // exactly 3 years ahead
   });
   it("rejects dates outside the window", () => {
-    expect(isPlausiblePrintedDate("2026-10-18", ADDED)).toBe(false); // 31 days ago
+    expect(isPlausiblePrintedDate("2021-11-17", ADDED)).toBe(false); // 5 years + 1 day ago
     expect(isPlausiblePrintedDate("2029-11-19", ADDED)).toBe(false); // 3 years + 1 day
     expect(isPlausiblePrintedDate("2062-01-01", ADDED)).toBe(false);
   });
@@ -100,14 +103,22 @@ describe("computeExpiry", () => {
     expect(r).toEqual({ expires_on: "2026-11-22", expiry_source: "printed", expiry_range_days: [5, 8] });
   });
 
-  it("keeps a recently passed printed date (the item is already out of date)", () => {
+  it("keeps a passed printed date (the item shows as gone) and marks it for review", () => {
     const r = computeExpiry({ location: "fridge", printed_date: "2026-11-10" }, null, ADDED);
     expect(r.expiry_source).toBe("printed");
+    expect(r.review_reason).toBe("printed_date_in_past");
     expect(daysLeft(r.expires_on, ADDED)).toBe(-8);
+    const longAgo = computeExpiry({ location: "fridge", printed_date: "2026-09-01" }, milk, ADDED);
+    expect(longAgo).toMatchObject({ expiry_source: "printed", expires_on: "2026-09-01", review_reason: "printed_date_in_past" });
+  });
+
+  it("does not mark today's or a future printed date for review", () => {
+    expect(computeExpiry({ location: "fridge", printed_date: ADDED }, null, ADDED).review_reason).toBeUndefined();
+    expect(computeExpiry({ location: "fridge", printed_date: "2026-11-19" }, null, ADDED).review_reason).toBeUndefined();
   });
 
   it("2. ignores an implausible printed date and uses the FoodKeeper midpoint, rounded down", () => {
-    const tooOld = computeExpiry({ location: "fridge", printed_date: "2025-01-01" }, milk, ADDED);
+    const tooOld = computeExpiry({ location: "fridge", printed_date: "2020-01-01" }, milk, ADDED);
     expect(tooOld).toEqual({ expires_on: "2026-11-24", expiry_source: "foodkeeper", expiry_range_days: [5, 8] }); // floor(6.5) = 6
     const tooFar = computeExpiry({ location: "fridge", printed_date: "2099-01-01" }, milk, ADDED);
     expect(tooFar.expiry_source).toBe("foodkeeper");
@@ -196,6 +207,19 @@ describe("computeExpiry", () => {
       ].map((r) => r.expiry_source),
     );
     expect([...sources].sort()).toEqual(["ai_estimate", "foodkeeper", "printed"]);
+  });
+});
+
+describe("isoDateInTimeZone", () => {
+  it("gives the calendar date in the named zone", () => {
+    expect(isoDateInTimeZone(new Date("2026-11-18T18:29:59Z"), "Asia/Kolkata")).toBe("2026-11-18");
+    expect(isoDateInTimeZone(new Date("2026-11-18T18:30:00Z"), "Asia/Kolkata")).toBe("2026-11-19");
+    expect(isoDateInTimeZone(new Date("2026-11-18T18:30:00Z"), "UTC")).toBe("2026-11-18");
+    expect(isoDateInTimeZone(new Date("2026-01-01T03:00:00Z"), "America/Los_Angeles")).toBe("2025-12-31");
+  });
+  it("throws on an unknown zone or an invalid Date", () => {
+    expect(() => isoDateInTimeZone(new Date(), "Mars/Olympus")).toThrow(RangeError);
+    expect(() => isoDateInTimeZone(new Date("nope"), "UTC")).toThrow(RangeError);
   });
 });
 

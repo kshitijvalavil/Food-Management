@@ -2,8 +2,10 @@
 // Deno (edge functions), Node (vitest) and the browser (review-sheet previews).
 //
 // Order of precedence:
-//   1. printed_date read off the pack, if plausible
-//      (not more than 3 years after addedOn, not more than 30 days before it)
+//   1. printed_date read off the pack, if plausible (a real date, not more than 3 years
+//      after addedOn and not more than 5 years before it). A printed date already in the
+//      past is KEPT, so the item shows as "gone", and the result carries
+//      review_reason "printed_date_in_past" so the review sheet asks the user to check it.
 //   2. shelf_life range for the item's location (midpoint, rounded down). Labelled
 //      foodkeeper only when the row's source is 'foodkeeper'; curated rows are labelled
 //      ai_estimate ("Estimate"), so non-USDA data is never shown as USDA.
@@ -11,8 +13,8 @@
 //   4. a conservative fallback by location, labelled ai_estimate
 //
 // Dates are calendar dates ("yyyy-mm-dd"). A Date object is read with its local calendar
-// fields, so on the server (UTC) "today" is the UTC date and in the browser it is the
-// phone's local date.
+// fields (the phone's local date in the browser). The server passes a string from
+// isoDateInTimeZone(now, APP_TIMEZONE) instead, so both agree on "today".
 
 export type ExpiryLocation = "fridge" | "freezer" | "pantry";
 export type ExpirySourceValue = "printed" | "foodkeeper" | "ai_estimate";
@@ -40,6 +42,8 @@ export interface ExpiryResult {
   expiry_source: ExpirySourceValue;
   /** shelf_life [min, max] days for the item's location, when the row has them. */
   expiry_range_days: [number, number] | null;
+  /** Set when the user should check the date: the printed date is already past. */
+  review_reason?: "printed_date_in_past";
 }
 
 /** Used when nothing better is known. Deliberately on the short side. */
@@ -50,7 +54,8 @@ export const FALLBACK_DAYS: Readonly<Record<ExpiryLocation, number>> = Object.fr
 });
 
 export const PRINTED_MAX_YEARS_AHEAD = 3;
-export const PRINTED_MAX_DAYS_PAST = 30;
+/** Older printed dates are treated as misreads (e.g. a manufacture year or a typo). */
+export const PRINTED_MAX_YEARS_PAST = 5;
 /** AI estimates above this are ignored (10 years). */
 export const AI_ESTIMATE_MAX_DAYS = 3650;
 
@@ -110,9 +115,26 @@ export function isPlausiblePrintedDate(printed: string | null | undefined, added
   const p = parseIsoDate(printed);
   if (p === null) return false;
   const added = toDayNumber(addedOn);
-  if (p < added - PRINTED_MAX_DAYS_PAST) return false;
+  if (p < addYears(added, -PRINTED_MAX_YEARS_PAST)) return false;
   if (p > addYears(added, PRINTED_MAX_YEARS_AHEAD)) return false;
   return true;
+}
+
+/**
+ * Calendar date ("yyyy-mm-dd") of an instant in an IANA time zone, e.g. "Asia/Kolkata".
+ * Uses Intl, which Deno, Node and every phone browser have. Throws RangeError for an
+ * unknown zone.
+ */
+export function isoDateInTimeZone(instant: Date, timeZone: string): string {
+  if (Number.isNaN(instant.getTime())) throw new RangeError("Invalid date");
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(instant);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year").padStart(4, "0")}-${get("month")}-${get("day")}`;
 }
 
 function cleanDays(v: number | null | undefined): number | null {
@@ -147,11 +169,15 @@ export function computeExpiry(
   const range = shelfLifeRange(shelfLife, item.location);
 
   if (item.printed_date && isPlausiblePrintedDate(item.printed_date, addedOn)) {
-    return {
-      expires_on: fromDayNumber(parseIsoDate(item.printed_date) as number),
+    const printed = parseIsoDate(item.printed_date) as number;
+    const result: ExpiryResult = {
+      expires_on: fromDayNumber(printed),
       expiry_source: "printed",
       expiry_range_days: range,
     };
+    // Already out of date: keep the date (the item shows as "gone") and ask for a check.
+    if (printed < toDayNumber(addedOn)) result.review_reason = "printed_date_in_past";
+    return result;
   }
 
   if (range) {

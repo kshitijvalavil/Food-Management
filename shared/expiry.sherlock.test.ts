@@ -11,6 +11,7 @@ import {
   computeExpiry,
   daysLeft,
   FALLBACK_DAYS,
+  isoDateInTimeZone,
   isPlausiblePrintedDate,
   parseIsoDate,
   shelfLifeRange,
@@ -58,13 +59,16 @@ describe("sherlock: timezone boundaries around midnight IST", () => {
     expect(computeExpiry(fridge(), null, justAfterMidnightIst).expires_on).toBe(addDays("2026-11-19", FALLBACK_DAYS.fridge));
     expect(daysLeft("2026-11-19", justAfterMidnightIst)).toBe(0);
   });
-  it("FINDING: the server (UTC string) and the phone (local Date) disagree for 5.5 h each night", () => {
-    // Server passes todayUtc() = "2026-11-18"; the review sheet re-computes with new Date().
+  it("FIXED: the server (APP_TIMEZONE date) and the phone (local Date) agree after midnight IST", () => {
+    // Was: the server passed the UTC date ("2026-11-18") and disagreed with the phone for
+    // 5.5 h each night. Now it passes isoDateInTimeZone(now, APP_TIMEZONE = Asia/Kolkata).
     const at = new Date("2026-11-18T20:00:00Z"); // 01:30 IST, 19 Nov
-    const server = computeExpiry(fridge(), null, "2026-11-18").expires_on;
+    const serverToday = isoDateInTimeZone(at, "Asia/Kolkata");
+    expect(serverToday).toBe("2026-11-19");
+    const server = computeExpiry(fridge(), null, serverToday).expires_on;
     const phone = computeExpiry(fridge(), null, at).expires_on;
-    expect(server).not.toBe(phone);
-    expect(daysLeft(server, at)).toBe(FALLBACK_DAYS.fridge - 1);
+    expect(server).toBe(phone);
+    expect(daysLeft(server, at)).toBe(FALLBACK_DAYS.fridge);
   });
   it("rejects an invalid Date", () => {
     expect(() => toIsoDate(new Date("nope"))).toThrow(RangeError);
@@ -78,13 +82,13 @@ describe("sherlock: printed date far in the past or future", () => {
     expect(r).toMatchObject({ expiry_source: "printed", expires_on: "2026-10-19" });
     expect(daysLeft(r.expires_on, ADDED)).toBe(-30);
   });
-  it("FINDING: 31+ days past is dropped and the item is shown as FRESH (current behaviour)", () => {
-    // A pack that expired in September is photographed in November: the printed date is
-    // discarded and the fallback says it is good for 5 more days. Expected (after fix): keep
-    // the printed date (it is in the past, so the item shows as "gone"), or flag it for review.
+  it("FIXED: 31+ days past keeps the printed date (shows as gone) and is marked for review", () => {
+    // Was: the printed date was discarded and the fallback said "good for 5 more days".
     const r = computeExpiry(fridge("2026-09-01"), null, ADDED);
-    expect(r.expiry_source).toBe("ai_estimate");
-    expect(daysLeft(r.expires_on, ADDED)).toBe(FALLBACK_DAYS.fridge);
+    expect(r).toMatchObject({ expiry_source: "printed", expires_on: "2026-09-01", review_reason: "printed_date_in_past" });
+    expect(daysLeft(r.expires_on, ADDED)).toBe(-78);
+    // Truly implausible dates are still rejected: > 3 years ahead or > 5 years back.
+    expect(computeExpiry(fridge("2021-11-17"), null, ADDED).expiry_source).toBe("ai_estimate");
   });
   it("exactly 3 years ahead is printed, one day more is not", () => {
     expect(computeExpiry(fridge("2029-11-18"), null, ADDED).expiry_source).toBe("printed");
