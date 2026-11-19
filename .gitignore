@@ -23,3 +23,5 @@ secrets/
 *.jks
 dist/
 .expo/
+# Vite / vitest cache
+.vite/
